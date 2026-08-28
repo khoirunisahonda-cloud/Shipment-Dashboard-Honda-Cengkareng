@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central Master Part Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --honda-red:#E4002B;
+    --honda-red-dark:#A3001F;
+    --ink:#1A1D21;
+    --ink-soft:#4B5158;
+    --muted:#71787F;
+    --faint:#A3AAB0;
+    --bg:#F1F2F4;
+    --panel:#FFFFFF;
+    --border:#E2E5E9;
+    --border-soft:#EDEFF1;
+    --green:#1C8A4B;
+    --slate:#5B6672;
+    --violet:#7C4DFF;
+    --maroon:#8C1D2B;
+    --amber:#B4750A;
+    --import-yellow:#F7B500;
+    --import-yellow-bg:#FFF6DC;
+    --mono:'IBM Plex Mono', monospace;
+    --disp:'Barlow Condensed', sans-serif;
+    --body:'IBM Plex Sans', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    padding:20px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1320px;margin:0 auto;}
+
+  /* ---- Header ---- */
+  .topbar{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-top:4px solid var(--honda-red);
+    display:grid;
+    grid-template-columns: 1fr auto;
+    align-items:center;
+    padding:16px 24px;
+    margin-bottom:18px;
+    gap:20px;
+  }
+  .topbar-title .eyebrow{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.14em;
+    color:var(--honda-red);
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  .topbar-title h1{
+    font-family:var(--disp);
+    font-weight:700;
+    font-size:32px;
+    letter-spacing:.01em;
+    margin:2px 0 0;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  .brand-lockup{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding-left:20px;
+    border-left:1px solid var(--border);
+  }
+  .brand-mark{
+    width:40px;height:40px;
+    background:var(--honda-red);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--disp);
+    font-weight:800;
+    font-size:22px;
+    color:#fff;
+    letter-spacing:0;
+  }
+  .brand-text{
+    font-family:var(--disp);
+    font-weight:700;
+    font-size:19px;
+    letter-spacing:.06em;
+    color:var(--ink);
+    text-transform:uppercase;
+    line-height:1.1;
+  }
+  .brand-text span{
+    display:block;
+    font-family:var(--mono);
+    font-weight:500;
+    font-size:9.5px;
+    letter-spacing:.08em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-top:2px;
+  }
+
+  /* ---- KPI strip ---- */
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    margin-bottom:18px;
+  }
+  .kpi{
+    background:var(--panel);
+    padding:16px 14px;
+    position:relative;
+    border-top:3px solid transparent;
+  }
+  .kpi .label{
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .kpi .num{
+    font-family:var(--disp);
+    font-weight:700;
+    font-size:30px;
+    margin-top:6px;
+    line-height:1;
+    color:var(--ink);
+  }
+  .kpi .sub{font-size:11px;color:var(--muted);margin-top:5px;}
+  .kpi.accent-red{border-top-color:var(--honda-red);}
+  .kpi.accent-red .num{color:var(--honda-red);}
+  .kpi.accent-green{border-top-color:var(--green);}
+  .kpi.accent-green .num{color:var(--green);}
+  .kpi.accent-slate{border-top-color:var(--slate);}
+  .kpi.accent-slate .num{color:var(--slate);}
+  .kpi.accent-violet{border-top-color:var(--violet);}
+  .kpi.accent-violet .num{color:var(--violet);}
+  .kpi.accent-maroon{border-top-color:var(--maroon);}
+  .kpi.accent-maroon .num{color:var(--maroon);}
+  .kpi.accent-amber{border-top-color:var(--amber);}
+  .kpi.accent-amber .num{color:var(--amber);}
+
+  /* ---- generic panel ---- */
+  .panel-block{
+    background:var(--panel);
+    border:1px solid var(--border);
+    padding:18px 20px 20px;
+    margin-bottom:18px;
+  }
+  .panel-block h2{
+    font-family:var(--disp);
+    font-size:18px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin:0 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--ink);
+  }
+  .panel-block h2::before{
+    content:'';
+    width:8px;height:8px;
+    background:var(--honda-red);
+    display:inline-block;
+  }
+
+  /* ---- import panel ---- */
+  .import-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  .import-card{
+    border:1px solid var(--border);
+    background:#FBFBFC;
+    padding:16px 16px 18px;
+  }
+  .import-card h3{
+    font-family:var(--body);
+    font-size:13.5px;
+    font-weight:700;
+    margin:0 0 5px;
+    color:var(--ink);
+  }
+  .import-desc{
+    font-size:11.5px;
+    color:var(--muted);
+    margin:0 0 10px;
+    line-height:1.5;
+  }
+  #bulkSkuInput{
+    width:100%;
+    resize:vertical;
+    background:#fff;
+    border:1px solid var(--border);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:12.5px;
+    padding:10px 12px;
+  }
+  #bulkSkuInput:focus{outline:1px solid var(--honda-red);}
+  .import-actions{display:flex;gap:8px;margin-top:10px;}
+  .btn-primary{
+    font-family:var(--mono);
+    font-size:11.5px;
+    letter-spacing:.03em;
+    padding:9px 16px;
+    border:1px solid var(--honda-red);
+    background:var(--honda-red);
+    color:#fff;
+    cursor:pointer;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  .btn-primary:hover{background:var(--honda-red-dark);border-color:var(--honda-red-dark);}
+  .btn-ghost{
+    font-family:var(--mono);
+    font-size:11.5px;
+    letter-spacing:.03em;
+    padding:9px 16px;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--muted);
+    cursor:pointer;
+    text-transform:uppercase;
+  }
+  .btn-ghost:hover{color:var(--ink);border-color:var(--ink-soft);}
+  .import-summary{margin-top:12px;font-size:12px;}
+  .import-summary .ok-line{color:var(--green);font-weight:600;}
+  .import-summary .warn-line{color:var(--amber);font-weight:600;}
+  .import-summary .not-found-box{
+    margin-top:8px;
+    padding:8px 10px;
+    background:var(--import-yellow-bg);
+    border:1px dashed var(--import-yellow);
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-soft);
+    word-break:break-word;
+    max-height:110px;
+    overflow-y:auto;
+  }
+  .file-drop{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    border:1.5px dashed var(--border);
+    background:#fff;
+    padding:22px 14px;
+    cursor:pointer;
+    font-size:12.5px;
+    color:var(--muted);
+    font-family:var(--mono);
+  }
+  .file-drop:hover{border-color:var(--honda-red);color:var(--honda-red);}
+  .col-detect{
+    margin-top:10px;
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--muted);
+    line-height:1.6;
+  }
+  .col-detect b{color:var(--ink-soft);}
+
+  /* ---- controls ---- */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .search-box{
+    flex:1;
+    min-width:220px;
+    background:#fff;
+    border:1px solid var(--border);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:13.5px;
+    padding:9px 12px;
+  }
+  .search-box:focus{outline:1px solid var(--honda-red);}
+  .chip{
+    font-family:var(--mono);
+    font-size:11.5px;
+    letter-spacing:.03em;
+    padding:7px 12px;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--muted);
+    cursor:pointer;
+    user-select:none;
+    text-transform:uppercase;
+  }
+  .chip:hover{color:var(--ink);}
+  .chip.active{background:var(--honda-red);border-color:var(--honda-red);color:#fff;font-weight:600;}
+  .chip.warn.active{background:var(--amber);border-color:var(--amber);}
+  .bulk-active-note{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--honda-red);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .bulk-active-note button{
+    font-family:var(--mono);
+    font-size:10.5px;
+    border:1px solid var(--honda-red);
+    background:#fff;
+    color:var(--honda-red);
+    padding:3px 8px;
+    cursor:pointer;
+  }
+
+  /* ---- table ---- */
+  .table-scroll{overflow-x:auto;border:1px solid var(--border-soft);}
+  table{width:100%;border-collapse:collapse;font-size:12.8px;min-width:960px;}
+  thead th{
+    position:sticky;top:0;
+    background:#F7F8F9;
+    text-align:left;
+    padding:9px 10px;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--muted);
+    border-bottom:1px solid var(--border);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  thead th:hover{color:var(--honda-red);}
+  tbody td{
+    padding:8px 10px;
+    border-bottom:1px solid var(--border-soft);
+    color:var(--ink);
+    vertical-align:top;
+  }
+  tbody tr:hover{background:#FAFAFB;}
+  tbody tr.incomplete{box-shadow: inset 3px 0 0 var(--amber);}
+  tbody tr{cursor:pointer;}
+  .sku{font-family:var(--mono);font-size:12px;color:var(--honda-red-dark);font-weight:600;}
+  .badge{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.04em;
+    padding:2px 8px;
+    border:1px solid;
+    text-transform:uppercase;
+    white-space:nowrap;
+    background:#fff;
+  }
+  .badge.fast{color:var(--green);border-color:var(--green);}
+  .badge.nonfast{color:var(--slate);border-color:var(--slate);}
+  .badge.discontinue{color:var(--maroon);border-color:var(--maroon);}
+  .badge.supersede{color:var(--violet);border-color:var(--violet);}
+  .badge.other{color:var(--faint);border-color:var(--border);}
+  .badge.src-sheets{color:var(--muted);border-color:var(--border);background:#F7F8F9;}
+  .badge.src-import{color:#8A5B00;border-color:var(--import-yellow);background:var(--import-yellow-bg);font-weight:600;}
+  .dim{color:var(--muted);font-family:var(--mono);font-size:12px;}
+  .prodname{max-width:320px;}
+  .flag{color:var(--amber);font-family:var(--mono);font-size:10.5px;margin-left:6px;}
+  .detail-btn{
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--honda-red);
+    border:1px solid var(--honda-red);
+    background:#fff;
+    padding:3px 9px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .detail-btn:hover{background:var(--honda-red);color:#fff;}
+
+  .footer-note{
+    margin-top:14px;
+    font-size:11.5px;
+    color:var(--faint);
+    font-family:var(--mono);
+  }
+  .empty-state{padding:40px 10px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:12.5px;}
+  .loading-state{padding:60px 10px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px;}
+  .error-state{padding:24px 16px;color:var(--maroon);font-family:var(--mono);font-size:12.5px;border:1px dashed var(--maroon);background:#FBEAEC;}
+
+  /* ---- detail modal ---- */
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(20,22,25,.55);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:40px 16px;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-top:4px solid var(--honda-red);
+    max-width:620px;
+    width:100%;
+    padding:24px 26px 26px;
+  }
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px;}
+  .modal-head .sku{font-size:20px;}
+  .modal-close{
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--muted);
+    width:28px;height:28px;
+    cursor:pointer;
+    font-size:15px;
+    line-height:1;
+    flex-shrink:0;
+  }
+  .modal-close:hover{color:var(--honda-red);border-color:var(--honda-red);}
+  .modal-nama{font-size:13.5px;color:var(--ink-soft);margin:6px 0 16px;line-height:1.5;}
+  .modal-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    margin-bottom:18px;
+  }
+  .modal-grid .mcell{background:#fff;padding:10px 12px;}
+  .modal-grid .mcell .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--faint);text-transform:uppercase;}
+  .modal-grid .mcell .v{font-family:var(--mono);font-size:14px;color:var(--ink);margin-top:4px;}
+  .modal-section-title{
+    font-family:var(--disp);
+    font-size:14px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--ink);
+    margin:0 0 10px;
+    padding-top:14px;
+    border-top:1px solid var(--border-soft);
+  }
+  .log-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border-soft);}
+  .log-row{
+    display:flex;justify-content:space-between;gap:10px;
+    padding:8px 12px;
+    font-family:var(--mono);font-size:12px;
+    border-bottom:1px solid var(--border-soft);
+  }
+  .log-row:last-child{border-bottom:none;}
+  .log-row .lk{color:var(--muted);}
+  .log-row .lv{color:var(--ink);font-weight:500;}
+  .log-note{font-size:10.5px;color:var(--faint);margin-top:8px;font-family:var(--mono);}
+  .doc-link-box{
+    border:1px solid var(--border-soft);
+    padding:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .doc-link-box a{
+    font-family:var(--mono);
+    font-size:12px;
+    color:#fff;
+    background:var(--honda-red);
+    padding:8px 14px;
+    text-decoration:none;
+    font-weight:600;
+  }
+  .doc-link-box a:hover{background:var(--honda-red-dark);}
+  .doc-link-empty{font-family:var(--mono);font-size:11.5px;color:var(--faint);line-height:1.5;}
+
+  @media (max-width: 900px){
+    .kpis{grid-template-columns:repeat(3,1fr);}
+    .topbar{grid-template-columns:1fr;}
+    .brand-lockup{border-left:none;padding-left:0;padding-top:12px;border-top:1px solid var(--border);margin-top:8px;}
+    .import-grid{grid-template-columns:1fr;}
+    .modal-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="topbar-title">
+      <div class="eyebrow">Ops · Inventory &amp; Fulfillment Data</div>
+      <h1>Central Master Part Dashboard</h1>
+    </div>
+    <div class="brand-lockup">
+      <div class="brand-mark">H</div>
+      <div class="brand-text">HONDA<span>Sparepart Master Data</span></div>
+    </div>
+  </div>
+
+  <div id="fetchError"></div>
+
+  <div class="kpis" id="kpiRow">
+    <div class="kpi accent-red"><div class="label">Total SKU</div><div class="num" id="kTotal">–</div><div class="sub">baris data valid</div></div>
+    <div class="kpi accent-green"><div class="label">Fast Moving</div><div class="num" id="kFast">–</div><div class="sub" id="kFastPct">–</div></div>
+    <div class="kpi accent-slate"><div class="label">Non Fast Moving</div><div class="num" id="kNonFast">–</div><div class="sub" id="kNonFastPct">–</div></div>
+    <div class="kpi accent-violet"><div class="label">Supersede</div><div class="num" id="kSupersede">–</div><div class="sub">perlu ganti SKU</div></div>
+    <div class="kpi accent-maroon"><div class="label">Discontinue</div><div class="num" id="kDiscontinue">–</div><div class="sub">tidak dijual lagi</div></div>
+    <div class="kpi accent-amber"><div class="label">Data Belum Lengkap</div><div class="num" id="kIncomplete">–</div><div class="sub">berat/dimensi = 0</div></div>
+  </div>
+
+  <div class="panel-block">
+    <h2>Import SKU</h2>
+    <div class="import-grid">
+      <div class="import-card">
+        <h3>1. Cari Banyak SKU Sekaligus</h3>
+        <p class="import-desc">Tempel daftar SKU (pisah baris baru / koma / spasi, bebas format). Tabel akan otomatis terfilter menampilkan SKU yang ditemukan.</p>
+        <textarea id="bulkSkuInput" rows="5" placeholder="Contoh:&#10;03512K1ZGBL, 03512K1ZGCP&#10;03962MUC000"></textarea>
+        <div class="import-actions">
+          <button class="btn-primary" id="bulkApplyBtn">Terapkan Pencarian</button>
+          <button class="btn-ghost" id="bulkClearBtn">Reset</button>
+        </div>
+        <div class="import-summary" id="bulkSummary"></div>
+      </div>
+      <div class="import-card">
+        <h3>2. Tambahkan SKU Baru dari File</h3>
+        <p class="import-desc">Upload file .csv, .xlsx, atau .xls. Kolom SKU, Status, Nama Produk, Berat, Volume, Panjang/Lebar/Tinggi dikenali otomatis walau urutannya beda dari sheet asli.</p>
+        <label class="file-drop" for="fileImportInput" id="fileDropLabel">Klik untuk pilih file (.csv / .xlsx / .xls)</label>
+        <input type="file" id="fileImportInput" accept=".csv,.xlsx,.xls" hidden>
+        <div class="import-summary" id="importSummary"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-block">
+    <h2>Tabel Master Part</h2>
+    <div class="controls">
+      <input type="text" class="search-box" id="searchBox" placeholder="Cari SKU atau nama produk...">
+      <div class="chip active" data-status="ALL">Semua</div>
+      <div class="chip" data-status="FAST">Fast Moving</div>
+      <div class="chip" data-status="NONFAST">Non Fast</div>
+      <div class="chip" data-status="SUPERSEDE">Supersede</div>
+      <div class="chip" data-status="DISCONTINUE">Discontinue</div>
+      <div class="chip warn" id="incompleteToggle">⚠ Belum Lengkap</div>
+    </div>
+    <div class="bulk-active-note" id="bulkActiveNote" style="display:none;margin-bottom:10px;"></div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th data-key="sku">SKU Induk</th>
+            <th data-key="status">Status</th>
+            <th data-key="nama">Nama Produk</th>
+            <th data-key="berat">Berat (g)</th>
+            <th data-key="volume">Volume (g)</th>
+            <th data-key="dim">P × L × T</th>
+            <th data-key="update">Update Terakhir</th>
+            <th data-key="source">Sumber</th>
+            <th>Detail</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="9"><div class="loading-state">Menarik data dari Google Sheets…</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="footer-note">
+      <span id="rowCountNote">–</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card" id="modalCard"></div>
+</div>
+
+<script>
+const SHEET_ID = '1X7LWev4Es_0cEaCIZz1kFXQ4_6yJ35Nx8l-2beLTmZ4';
+const GID = '551734447';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
+
+let sheetRows = [];
+let importedRows = [];
+let rowsById = {};
+let idCounter = 0;
+let sortState = { key: null, dir: 1 };
+let filterState = { status: 'ALL', incompleteOnly: false, q: '', bulkSkus: null };
+
+/* ---------------- helpers ---------------- */
+
+function findKey(headers, needles){
+  const norm = h => String(h || '').toLowerCase().trim();
+  for(const h of headers){
+    const nh = norm(h);
+    for(const n of needles){ if(nh.includes(n)) return h; }
+  }
+  return null;
+}
+
+function parseNum(str){
+  if(str === undefined || str === null) return 0;
+  str = String(str).trim();
+  if(str === '') return 0;
+  const cleaned = str.replace(/\./g, '').replace(/,/g, '.');
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? 0 : n;
+}
+
+function classifyStatus(s){
+  const v = (s || '').toLowerCase();
+  if(v.includes('non') && v.includes('fast')) return 'NONFAST';
+  if(v.includes('fast')) return 'FAST';
+  if(v.includes('supersede')) return 'SUPERSEDE';
+  if(v.includes('discontinue')) return 'DISCONTINUE';
+  return 'OTHER';
+}
+
+function statusBadgeClass(cat){
+  return {FAST:'fast', NONFAST:'nonfast', SUPERSEDE:'supersede', DISCONTINUE:'discontinue', OTHER:'other'}[cat] || 'other';
+}
+function statusLabel(cat, raw){
+  return raw && raw.trim() ? raw.trim() : cat;
+}
+
+/* Generic row builder — used for the Google Sheet pull AND for imported files,
+   so column order/naming doesn't need to match exactly. */
+function buildRowsFromHeaders(headers, dataArray, source){
+  const kSku = findKey(headers, ['sku induk', 'sku']);
+  const kStatus = findKey(headers, ['status sku', 'status']);
+  const kNama = findKey(headers, ['nama produk', 'nama barang', 'nama']);
+  const kBerat = findKey(headers, ['berat produk', 'berat (g)', 'berat']);
+  const kVolume = findKey(headers, ['volume']);
+  const kPanjang = findKey(headers, ['panjang']);
+  const kLebar = findKey(headers, ['lebar']);
+  const kTinggi = findKey(headers, ['tinggi']);
+  const kOps = findKey(headers, ['tgl input ops', 'tanggal input ops', 'input ops']);
+  const kShopee = findKey(headers, ['shopee']);
+  const kLazada = findKey(headers, ['lazada']);
+  const kTiktok = findKey(headers, ['tiktok', 'tik tok']);
+  const kWeb = findKey(headers, ['tanggal input web', 'input web', 'tgl web']);
+  const kMpGeneric = findKey(headers, ['tanggal input mp', 'input mp', 'input marketplace']);
+  const kRevisi = findKey(headers, ['tanggal revisi', 'update massal', 'update']);
+  const kLink = findKey(headers, ['link dokumentasi', 'dokumentasi pengukuran', 'link foto', 'link pengukuran', 'dokumentasi', 'link']);
+
+  let skippedCount = 0;
+  const rows = [];
+
+  dataArray.forEach(r => {
+    const skuVal = kSku ? String(r[kSku] || '').trim() : '';
+    if(!skuVal){ skippedCount++; return; }
+    const statusRaw = kStatus ? String(r[kStatus] || '') : '';
+    const berat = kBerat ? parseNum(r[kBerat]) : 0;
+    const volume = kVolume ? parseNum(r[kVolume]) : 0;
+    const p = kPanjang ? parseNum(r[kPanjang]) : 0;
+    const l = kLebar ? parseNum(r[kLebar]) : 0;
+    const t = kTinggi ? parseNum(r[kTinggi]) : 0;
+    const cat = classifyStatus(statusRaw);
+    const incomplete = (berat === 0 || volume === 0 || p === 0 || l === 0 || t === 0 || !statusRaw || !statusRaw.trim());
+    idCounter++;
+    const id = source + '-' + idCounter;
+    const row = {
+      id, source,
+      sku: skuVal,
+      statusCat: cat,
+      statusRaw: statusRaw.trim(),
+      nama: kNama ? String(r[kNama] || '').trim() : '',
+      berat, volume, p, l, t,
+      update: kRevisi ? String(r[kRevisi] || '').trim() : '',
+      ops: kOps ? String(r[kOps] || '').trim() : '',
+      web: kWeb ? String(r[kWeb] || '').trim() : '',
+      shopee: kShopee ? String(r[kShopee] || '').trim() : '',
+      lazada: kLazada ? String(r[kLazada] || '').trim() : '',
+      tiktok: kTiktok ? String(r[kTiktok] || '').trim() : '',
+      mpGeneric: kMpGeneric ? String(r[kMpGeneric] || '').trim() : '',
+      link: kLink ? String(r[kLink] || '').trim() : '',
+      incomplete
+    };
+    rows.push(row);
+    rowsById[id] = row;
+  });
+
+  const detectedCols = {
+    sku: !!kSku, status: !!kStatus, nama: !!kNama, berat: !!kBerat, volume: !!kVolume,
+    p: !!kPanjang, l: !!kLebar, t: !!kTinggi, ops: !!kOps, web: !!kWeb,
+    shopee: !!kShopee, lazada: !!kLazada, tiktok: !!kTiktok, mpGeneric: !!kMpGeneric,
+    revisi: !!kRevisi, link: !!kLink
+  };
+
+  return { rows, skippedCount, detectedCols };
+}
+
+function getAllRows(){ return sheetRows.concat(importedRows); }
+
+/* ---------------- load from Google Sheets ---------------- */
+
+async function loadData(){
+  try{
+    const res = await fetch(CSV_URL);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const csvText = await res.text();
+    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: false });
+    const headers = parsed.meta.fields || [];
+
+    const kSkuCheck = findKey(headers, ['sku induk', 'sku']);
+    if(!kSkuCheck){ throw new Error('Kolom "SKU Induk" tidak ditemukan di sheet ini.'); }
+
+    const result = buildRowsFromHeaders(headers, parsed.data, 'sheet');
+    sheetRows = result.rows;
+
+    document.getElementById('fetchError').innerHTML = '';
+    renderAll();
+  }catch(err){
+    document.getElementById('fetchError').innerHTML =
+      `<div class="error-state" style="margin-bottom:18px;">Gagal menarik data dari Google Sheets: ${err.message}.<br>
+      Pastikan sheet di-share dengan akses "Anyone with the link can view", lalu muat ulang halaman.</div>`;
+    document.getElementById('tableBody').innerHTML = '';
+    renderKPIs([]);
+  }
+}
+
+/* ---------------- KPI ---------------- */
+
+function renderKPIs(rows){
+  const total = rows.length;
+  const fast = rows.filter(r => r.statusCat === 'FAST').length;
+  const nonfast = rows.filter(r => r.statusCat === 'NONFAST').length;
+  const supersede = rows.filter(r => r.statusCat === 'SUPERSEDE').length;
+  const discontinue = rows.filter(r => r.statusCat === 'DISCONTINUE').length;
+  const incomplete = rows.filter(r => r.incomplete).length;
+  const pct = n => total ? ((n/total)*100).toFixed(0) + '% dari total' : '–';
+
+  document.getElementById('kTotal').textContent = total.toLocaleString('id-ID');
+  document.getElementById('kFast').textContent = fast.toLocaleString('id-ID');
+  document.getElementById('kFastPct').textContent = pct(fast);
+  document.getElementById('kNonFast').textContent = nonfast.toLocaleString('id-ID');
+  document.getElementById('kNonFastPct').textContent = pct(nonfast);
+  document.getElementById('kSupersede').textContent = supersede.toLocaleString('id-ID');
+  document.getElementById('kDiscontinue').textContent = discontinue.toLocaleString('id-ID');
+  document.getElementById('kIncomplete').textContent = incomplete.toLocaleString('id-ID');
+}
+
+/* ---------------- filter / sort / table ---------------- */
+
+function getFilteredRows(){
+  let rows = getAllRows();
+  if(filterState.status !== 'ALL'){ rows = rows.filter(r => r.statusCat === filterState.status); }
+  if(filterState.incompleteOnly){ rows = rows.filter(r => r.incomplete); }
+  if(filterState.bulkSkus){ rows = rows.filter(r => filterState.bulkSkus.has(r.sku.toUpperCase())); }
+  if(filterState.q){
+    const q = filterState.q.toLowerCase();
+    rows = rows.filter(r => r.sku.toLowerCase().includes(q) || r.nama.toLowerCase().includes(q));
+  }
+  if(sortState.key){
+    rows = [...rows].sort((a,b) => {
+      let av = a[sortState.key], bv = b[sortState.key];
+      if(typeof av === 'string'){ av = av.toLowerCase(); bv = (bv||'').toLowerCase(); }
+      if(av < bv) return -1 * sortState.dir;
+      if(av > bv) return 1 * sortState.dir;
+      return 0;
+    });
+  }
+  return rows;
+}
+
+function renderTable(){
+  const rows = getFilteredRows();
+  const tbody = document.getElementById('tableBody');
+  if(rows.length === 0){
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">Tidak ada data yang cocok dengan filter/pencarian.</div></td></tr>`;
+  } else {
+    tbody.innerHTML = rows.map(r => `
+      <tr class="${r.incomplete ? 'incomplete' : ''}" data-id="${r.id}">
+        <td class="sku">${r.sku}</td>
+        <td><span class="badge ${statusBadgeClass(r.statusCat)}">${statusLabel(r.statusCat, r.statusRaw) || '—'}</span></td>
+        <td class="prodname">${r.nama || '<span class="dim">—</span>'}${r.incomplete ? '<span class="flag">⚠ belum lengkap</span>' : ''}</td>
+        <td class="dim">${r.berat ? r.berat.toLocaleString('id-ID') : '—'}</td>
+        <td class="dim">${r.volume ? r.volume.toLocaleString('id-ID') : '—'}</td>
+        <td class="dim">${(r.p||r.l||r.t) ? `${r.p}×${r.l}×${r.t}` : '—'}</td>
+        <td class="dim">${r.update || '—'}</td>
+        <td>${r.source === 'import' ? '<span class="badge src-import">Import</span>' : '<span class="badge src-sheets">Sheets</span>'}</td>
+        <td><button class="detail-btn" data-detail-id="${r.id}">Lihat →</button></td>
+      </tr>
+    `).join('');
+  }
+  const allCount = getAllRows().length;
+  document.getElementById('rowCountNote').textContent = `Menampilkan ${rows.length.toLocaleString('id-ID')} dari ${allCount.toLocaleString('id-ID')} baris`;
+}
+
+function renderAll(){
+  const all = getAllRows();
+  renderKPIs(all);
+  renderTable();
+}
+
+/* ---------------- detail modal ---------------- */
+
+function fmt(v){ return v && String(v).trim() ? v : '—'; }
+
+function openDetail(id){
+  const r = rowsById[id];
+  if(!r) return;
+  const linkLooksValid = r.link && /^https?:\/\//i.test(r.link.trim());
+  document.getElementById('modalCard').innerHTML = `
+    <div class="modal-head">
+      <div>
+        <div class="sku">${r.sku}</div>
+      </div>
+      <button class="modal-close" id="modalCloseBtn">✕</button>
+    </div>
+    <div class="modal-nama">
+      <span class="badge ${statusBadgeClass(r.statusCat)}">${statusLabel(r.statusCat, r.statusRaw) || '—'}</span>
+      &nbsp; ${r.nama || '<span class="dim">Nama produk belum ada</span>'}
+    </div>
+    <div class="modal-grid">
+      <div class="mcell"><div class="k">Berat</div><div class="v">${r.berat ? r.berat.toLocaleString('id-ID') + ' g' : '—'}</div></div>
+      <div class="mcell"><div class="k">Volume</div><div class="v">${r.volume ? r.volume.toLocaleString('id-ID') + ' g' : '—'}</div></div>
+      <div class="mcell"><div class="k">P × L × T</div><div class="v">${(r.p||r.l||r.t) ? `${r.p}×${r.l}×${r.t}` : '—'}</div></div>
+      <div class="mcell"><div class="k">Sumber</div><div class="v">${r.source === 'import' ? 'Import' : 'Sheets'}</div></div>
+    </div>
+
+    <div class="modal-section-title">Log History</div>
+    <div class="log-list">
+      <div class="log-row"><span class="lk">TGL Pengukuran / Input OPS</span><span class="lv">${fmt(r.ops)}</span></div>
+      <div class="log-row"><span class="lk">Input WEB</span><span class="lv">${fmt(r.web)}</span></div>
+      <div class="log-row"><span class="lk">Input Marketplace — Shopee</span><span class="lv">${fmt(r.shopee)}</span></div>
+      <div class="log-row"><span class="lk">Input Marketplace — Lazada</span><span class="lv">${fmt(r.lazada)}</span></div>
+      <div class="log-row"><span class="lk">Input Marketplace — TikTok</span><span class="lv">${fmt(r.tiktok)}</span></div>
+      ${r.mpGeneric ? `<div class="log-row"><span class="lk">Input Marketplace (Umum)</span><span class="lv">${fmt(r.mpGeneric)}</span></div>` : ''}
+      <div class="log-row"><span class="lk">Tanggal Revisi / Update Massal</span><span class="lv">${fmt(r.update)}</span></div>
+    </div>
+    <div class="log-note">Kolom yang belum tersedia di sheet akan tampil sebagai "—". Tambahkan kolom dengan nama yang mengandung "Shopee", "Lazada", "TikTok", atau "Web" di sheet agar tanggalnya otomatis terbaca di sini.</div>
+
+    <div class="modal-section-title">Dokumentasi Pengukuran</div>
+    ${linkLooksValid
+      ? `<div class="doc-link-box"><span class="dim">Link dokumentasi tersedia untuk SKU ini.</span><a href="${r.link}" target="_blank" rel="noopener">Buka Dokumentasi ↗</a></div>`
+      : `<div class="doc-link-box"><span class="doc-link-empty">Belum ada link dokumentasi pengukuran untuk SKU ini. Tambahkan kolom "Link Dokumentasi" berisi URL (foto/drive/dsb) di sheet atau file import agar muncul di sini.</span></div>`
+    }
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('modalCloseBtn').addEventListener('click', closeDetail);
+}
+
+function closeDetail(){
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if(e.target.id === 'modalOverlay') closeDetail();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeDetail();
+});
+
+document.getElementById('tableBody').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-detail-id]');
+  if(btn){ openDetail(btn.dataset.detailId); return; }
+  const tr = e.target.closest('tr[data-id]');
+  if(tr){ openDetail(tr.dataset.id); }
+});
+
+/* ---------------- controls ---------------- */
+
+document.getElementById('searchBox').addEventListener('input', (e) => {
+  filterState.q = e.target.value;
+  renderTable();
+});
+
+document.querySelectorAll('.chip[data-status]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip[data-status]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    filterState.status = chip.dataset.status;
+    renderTable();
+  });
+});
+
+document.getElementById('incompleteToggle').addEventListener('click', (e) => {
+  filterState.incompleteOnly = !filterState.incompleteOnly;
+  e.target.classList.toggle('active', filterState.incompleteOnly);
+  renderTable();
+});
+
+document.querySelectorAll('th[data-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.key;
+    const map = { sku:'sku', status:'statusCat', nama:'nama', berat:'berat', volume:'volume', dim:'p', update:'update', source:'source' };
+    const realKey = map[key];
+    if(!realKey) return;
+    if(sortState.key === realKey){ sortState.dir *= -1; } else { sortState.key = realKey; sortState.dir = 1; }
+    renderTable();
+  });
+});
+
+/* ---------------- bulk SKU search ---------------- */
+
+document.getElementById('bulkApplyBtn').addEventListener('click', () => {
+  const raw = document.getElementById('bulkSkuInput').value;
+  const tokens = raw.split(/[\n,;]+|\s+/).map(s => s.trim()).filter(Boolean);
+  const uniqueTokens = [...new Set(tokens.map(t => t.toUpperCase()))];
+  const summaryEl = document.getElementById('bulkSummary');
+
+  if(uniqueTokens.length === 0){
+    summaryEl.innerHTML = `<span class="warn-line">Belum ada SKU yang ditempel.</span>`;
+    return;
+  }
+
+  const allSkuSet = new Set(getAllRows().map(r => r.sku.toUpperCase()));
+  const found = uniqueTokens.filter(t => allSkuSet.has(t));
+  const notFound = uniqueTokens.filter(t => !allSkuSet.has(t));
+
+  filterState.bulkSkus = new Set(found);
+  document.querySelectorAll('.chip[data-status]').forEach(c => c.classList.remove('active'));
+  document.querySelector('.chip[data-status="ALL"]').classList.add('active');
+  filterState.status = 'ALL';
+  renderTable();
+
+  summaryEl.innerHTML = `<span class="ok-line">${found.length} dari ${uniqueTokens.length} SKU ditemukan.</span>` +
+    (notFound.length ? `<div class="not-found-box"><b>Tidak ditemukan (${notFound.length}):</b><br>${notFound.join(', ')}</div>` : '');
+
+  const note = document.getElementById('bulkActiveNote');
+  note.style.display = 'flex';
+  note.innerHTML = `Menampilkan hasil pencarian massal (${found.length} SKU) <button id="bulkNoteReset">Hapus filter</button>`;
+  document.getElementById('bulkNoteReset').addEventListener('click', resetBulkSearch);
+});
+
+document.getElementById('bulkClearBtn').addEventListener('click', () => {
+  document.getElementById('bulkSkuInput').value = '';
+  document.getElementById('bulkSummary').innerHTML = '';
+  resetBulkSearch();
+});
+
+function resetBulkSearch(){
+  filterState.bulkSkus = null;
+  document.getElementById('bulkActiveNote').style.display = 'none';
+  document.getElementById('bulkActiveNote').innerHTML = '';
+  renderTable();
+}
+
+/* ---------------- import from file ---------------- */
+
+function normalizeRowsToObjects(headers, rows2d){
+  // rows2d: array of arrays (first row = header) -> array of objects
+  return rows2d.slice(1).map(rowArr => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = rowArr[i]; });
+    return obj;
+  });
+}
+
+document.getElementById('fileImportInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const summaryEl = document.getElementById('importSummary');
+  const nameLower = file.name.toLowerCase();
+  document.getElementById('fileDropLabel').textContent = file.name;
+
+  const finishImport = (headers, dataObjects) => {
+    const beforeSkus = new Set(getAllRows().map(r => r.sku.toUpperCase()));
+    const result = buildRowsFromHeaders(headers, dataObjects, 'import');
+    if(!result.detectedCols.sku){
+      summaryEl.innerHTML = `<span class="warn-line">Gagal: kolom SKU tidak dikenali di file ini.</span>`;
+      return;
+    }
+    const dupCount = result.rows.filter(r => beforeSkus.has(r.sku.toUpperCase())).length;
+    importedRows = importedRows.concat(result.rows);
+    renderAll();
+
+    const detectedList = Object.entries(result.detectedCols)
+      .filter(([,v]) => v).map(([k]) => k).join(', ');
+
+    summaryEl.innerHTML =
+      `<span class="ok-line">${result.rows.length} baris berhasil diimpor</span>` +
+      (result.skippedCount ? `, ${result.skippedCount} baris dilewati (SKU kosong)` : '') +
+      (dupCount ? `<br><span class="warn-line">${dupCount} SKU sudah ada di data sebelumnya — tetap ditambahkan sebagai entri baru bertanda "Import".</span>` : '') +
+      `<div class="col-detect"><b>Kolom terdeteksi:</b> ${detectedList || '(tidak ada)'}</div>`;
+  };
+
+  if(nameLower.endsWith('.csv')){
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const parsed = Papa.parse(ev.target.result, { header: true, skipEmptyLines: true });
+      finishImport(parsed.meta.fields || [], parsed.data);
+    };
+    reader.readAsText(file);
+  } else if(nameLower.endsWith('.xlsx') || nameLower.endsWith('.xls')){
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try{
+        const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
+        const firstSheet = wb.Sheets[wb.SheetNames[0]];
+        const rows2d = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+        if(rows2d.length < 2){
+          summaryEl.innerHTML = `<span class="warn-line">File tidak berisi data (kurang dari 2 baris).</span>`;
+          return;
+        }
+        const headers = rows2d[0].map(h => String(h || ''));
+        const dataObjects = normalizeRowsToObjects(headers, rows2d);
+        finishImport(headers, dataObjects);
+      }catch(err){
+        summaryEl.innerHTML = `<span class="warn-line">Gagal membaca file: ${err.message}</span>`;
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    summaryEl.innerHTML = `<span class="warn-line">Format file tidak didukung. Gunakan .csv, .xlsx, atau .xls</span>`;
+  }
+});
+
+loadData();
+</script>
+</body>
+</html>
