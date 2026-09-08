@@ -202,6 +202,41 @@
   .empty-state,.loading-state{padding:40px 10px;text-align:center;color:var(--muted);font-size:13px;}
   .error-state{padding:22px 16px;color:var(--red);font-size:12.5px;border:1px dashed var(--red);background:var(--red-tint);border-radius:4px;}
 
+  /* ---- pagination ---- */
+  .pagination{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px;flex-wrap:wrap;}
+  .pagination button{
+    font-family:var(--font);font-size:12.5px;font-weight:700;
+    padding:7px 14px;border-radius:20px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);cursor:pointer;
+  }
+  .pagination button:hover:not(:disabled){border-color:var(--red);color:var(--red);}
+  .pagination button:disabled{opacity:0.4;cursor:not-allowed;}
+  .pagination .page-info{font-size:12.5px;color:var(--muted);font-weight:600;white-space:nowrap;}
+
+  /* ---- login gate ---- */
+  #loginOverlay{
+    position:fixed;inset:0;background:var(--paper);z-index:9999;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .login-card{
+    background:var(--white);border:1px solid var(--line);border-top:3px solid var(--red);
+    max-width:360px;width:100%;padding:28px 26px;
+  }
+  .login-card h2{margin:0 0 4px;font-size:18px;font-weight:800;}
+  .login-card p{margin:0 0 20px;font-size:12.5px;color:var(--muted);}
+  .login-field{margin-bottom:14px;}
+  .login-field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;}
+  .login-field input{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:5px;
+    font-family:var(--font);font-size:13.5px;
+  }
+  .login-field input:focus{outline:none;border-color:var(--red);}
+  .login-error{color:var(--red);font-size:12.5px;margin:-6px 0 14px;display:none;}
+  .login-card .btn{width:100%;}
+  #appRoot{display:none;}
+  .logout-btn{background:#fff;color:var(--muted);border:1.5px solid var(--line);}
+  .logout-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-tint);}
+
   @media (max-width:900px){
     .kpis{grid-template-columns:repeat(2,1fr);}
     .import-grid{grid-template-columns:1fr;}
@@ -211,6 +246,27 @@
 </style>
 </head>
 <body>
+
+<div id="loginOverlay">
+  <div class="login-card">
+    <h2>Central Master Part Dashboard</h2>
+    <p>Masukkan username dan password untuk mengakses dashboard.</p>
+    <form id="loginForm">
+      <div class="login-field">
+        <label for="loginUser">Username</label>
+        <input type="text" id="loginUser" autocomplete="username" required>
+      </div>
+      <div class="login-field">
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" required>
+      </div>
+      <div class="login-error" id="loginError">Username atau password salah.</div>
+      <button type="submit" class="btn">Masuk</button>
+    </form>
+  </div>
+</div>
+
+<div id="appRoot">
 
 <header>
   <div class="header-inner">
@@ -223,7 +279,10 @@
         <h1>Central Master Part Dashboard</h1>
       </div>
     </div>
-    <button class="btn" id="exportBtn">Export ke Excel</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" id="exportBtn">Export ke Excel</button>
+      <button class="btn small logout-btn" id="logoutBtn">Keluar</button>
+    </div>
   </div>
 </header>
 
@@ -305,6 +364,7 @@
         </table>
       </div>
       <div class="footer-note" id="rowCountNote"></div>
+      <div class="pagination" id="paginationControls"></div>
     </div>
   </div>
 
@@ -340,7 +400,48 @@
 
 </div>
 
+</div>
+
 <script>
+// ---- 0. Simple login gate (client-side only) ----
+// Ganti username/password di bawah ini sesuai kebutuhan tim.
+const APP_USERS = {
+  'admin': 'cengkareng2026'
+};
+const AUTH_KEY = 'mp_auth_session_v1';
+
+function showApp(){
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('appRoot').style.display = 'block';
+  initApp();
+}
+function showLogin(){
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('appRoot').style.display = 'none';
+}
+if(sessionStorage.getItem(AUTH_KEY) === '1'){
+  showApp();
+} else {
+  showLogin();
+}
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  if(APP_USERS[u] && APP_USERS[u] === p){
+    errEl.style.display = 'none';
+    sessionStorage.setItem(AUTH_KEY, '1');
+    showApp();
+  } else {
+    errEl.style.display = 'block';
+  }
+});
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem(AUTH_KEY);
+  location.reload();
+});
+
 const SHEET_ID = '1X7LWev4Es_0cEaCIZz1kFXQ4_6yJ35Nx8l-2beLTmZ4';
 const GID = '551734447';
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
@@ -355,6 +456,8 @@ let openDetail = new Set();
 let selectedForDelete = new Set();
 let openGroups = new Set();
 let groupState = { onlyMulti: true, q: '' };
+let currentPage = 1;
+const PAGE_SIZE = 50;
 
 function safeGetLS(key, fallback){
   try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
@@ -539,7 +642,13 @@ function detailHtml(r){
 }
 
 function renderTable(){
-  const rows = getFilteredRows();
+  const filteredRows = getFilteredRows();
+  const totalRows = filteredRows.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
+  if(currentPage > totalPages) currentPage = totalPages;
+  if(currentPage < 1) currentPage = 1;
+  const startIdx = (currentPage - 1) * PAGE_SIZE;
+  const rows = filteredRows.slice(startIdx, startIdx + PAGE_SIZE);
   const tbody = document.getElementById('tableBody');
   if(rows.length === 0){
     tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">Tidak ada data yang cocok dengan filter/pencarian.</div></td></tr>`;
@@ -567,8 +676,26 @@ function renderTable(){
       </tr>`;
     }).join('');
   }
-  document.getElementById('rowCountNote').textContent = `Menampilkan ${rows.length.toLocaleString('id-ID')} dari ${rawRows.length.toLocaleString('id-ID')} baris`;
+  const rangeStart = totalRows === 0 ? 0 : startIdx + 1;
+  const rangeEnd = Math.min(startIdx + rows.length, totalRows);
+  document.getElementById('rowCountNote').textContent =
+    `Menampilkan ${rangeStart.toLocaleString('id-ID')}–${rangeEnd.toLocaleString('id-ID')} dari ${totalRows.toLocaleString('id-ID')} baris (hasil filter, total keseluruhan ${rawRows.length.toLocaleString('id-ID')} baris)`;
+  renderPagination(totalPages);
   attachRowHandlers();
+}
+
+function renderPagination(totalPages){
+  const el = document.getElementById('paginationControls');
+  if(totalPages <= 1){ el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <button id="pagePrevBtn" ${currentPage === 1 ? 'disabled' : ''}>&larr; Sebelumnya</button>
+    <span class="page-info">Halaman ${currentPage} dari ${totalPages}</span>
+    <button id="pageNextBtn" ${currentPage === totalPages ? 'disabled' : ''}>Selanjutnya &rarr;</button>
+  `;
+  const prevBtn = document.getElementById('pagePrevBtn');
+  const nextBtn = document.getElementById('pageNextBtn');
+  if(prevBtn) prevBtn.addEventListener('click', () => { currentPage--; renderTable(); });
+  if(nextBtn) nextBtn.addEventListener('click', () => { currentPage++; renderTable(); });
 }
 
 function attachRowHandlers(){
@@ -662,7 +789,7 @@ function groupDetailHtml(members){
         ${members.map(m => `
           <li>
             <span class="lk"><span class="sku">${m.sku}</span> — ${m.nama || '<span class="dim">(nama kosong)</span>'}</span>
-            <span class="lv"><span class="badge ${statusBadgeClass(m.statusCat)}">${statusLabel(m.statusCat, m.statusRaw) || '—'}</span></span>
+            <span class="lv">${(m.statusCat === 'FAST' || m.statusCat === 'NONFAST') ? '' : `<span class="badge ${statusBadgeClass(m.statusCat)}">${statusLabel(m.statusCat, m.statusRaw) || '—'}</span>`}</span>
           </li>
         `).join('')}
       </ul>
@@ -677,8 +804,8 @@ function renderGroups(){
   } else {
     tbody.innerHTML = entries.map(([key, members]) => {
       const isOpen = openGroups.has(key);
-      const statuses = [...new Set(members.map(m => m.statusCat))];
-      const statusBadges = statuses.map(s => `<span class="badge ${statusBadgeClass(s)}">${s}</span>`).join(' ');
+      const statuses = [...new Set(members.map(m => m.statusCat))].filter(s => s !== 'FAST' && s !== 'NONFAST');
+      const statusBadges = statuses.map(s => `<span class="badge ${statusBadgeClass(s)}">${s}</span>`).join(' ') || '<span class="dim">—</span>';
       const sampleName = (members.find(m => m.nama)?.nama || '—');
       return `
       <tr class="datarow" data-group="${key}">
@@ -717,6 +844,7 @@ document.getElementById('groupOnlyMultiToggle').addEventListener('click', (e) =>
 });
 
 function renderAll(){
+  currentPage = 1;
   renderKPIs(rawRows);
   renderTable();
   renderGroups();
@@ -725,6 +853,7 @@ function renderAll(){
 
 document.getElementById('searchBox').addEventListener('input', (e) => {
   filterState.q = e.target.value;
+  currentPage = 1;
   renderTable();
 });
 
@@ -733,6 +862,7 @@ document.querySelectorAll('.chip[data-status]').forEach(chip => {
     document.querySelectorAll('.chip[data-status]').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     filterState.status = chip.dataset.status;
+    currentPage = 1;
     renderTable();
   });
 });
@@ -740,6 +870,7 @@ document.querySelectorAll('.chip[data-status]').forEach(chip => {
 document.getElementById('incompleteToggle').addEventListener('click', (e) => {
   filterState.incompleteOnly = !filterState.incompleteOnly;
   e.target.classList.toggle('active', filterState.incompleteOnly);
+  currentPage = 1;
   renderTable();
 });
 
@@ -749,6 +880,7 @@ document.querySelectorAll('th[data-key]').forEach(th => {
     const map = { sku:'sku', status:'statusCat', nama:'nama', berat:'berat', volume:'volume', dim:'p', source:'source' };
     const realKey = map[key];
     if(sortState.key === realKey){ sortState.dir *= -1; } else { sortState.key = realKey; sortState.dir = 1; }
+    currentPage = 1;
     renderTable();
   });
 });
@@ -761,8 +893,9 @@ document.getElementById('applyBulkSearch').addEventListener('click', () => {
   const text = document.getElementById('bulkSkuInput').value;
   const list = parseSkuList(text);
   const summaryEl = document.getElementById('bulkSummary');
-  if(list.length === 0){ summaryEl.innerHTML = ''; filterState.skuList = null; renderTable(); return; }
+  if(list.length === 0){ summaryEl.innerHTML = ''; filterState.skuList = null; currentPage = 1; renderTable(); return; }
   filterState.skuList = list;
+  currentPage = 1;
   const foundSkus = new Set(rawRows.filter(r => list.includes(r.sku.toUpperCase())).map(r => r.sku.toUpperCase()));
   const missing = list.filter(s => !foundSkus.has(s));
   summaryEl.innerHTML =
@@ -774,6 +907,7 @@ document.getElementById('clearBulkSearch').addEventListener('click', () => {
   document.getElementById('bulkSkuInput').value = '';
   document.getElementById('bulkSummary').innerHTML = '';
   filterState.skuList = null;
+  currentPage = 1;
   renderTable();
 });
 
@@ -894,7 +1028,6 @@ document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
   const templateRows = [
     {
       'SKU Induk': '03512K1ZGBL',
-      'Status SKU': 'FAST MOVING',
       'Nama Produk': 'Contoh: Kampas Rem Depan',
       'Berat Produk (g)': 250,
       'Volume (g)': 1200,
@@ -908,7 +1041,7 @@ document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
   ];
   const ws = XLSX.utils.json_to_sheet(templateRows);
   ws['!cols'] = [
-    {wch:16},{wch:16},{wch:28},{wch:14},{wch:12},{wch:10},{wch:10},{wch:10},{wch:14},{wch:16},{wch:14}
+    {wch:16},{wch:28},{wch:14},{wch:12},{wch:10},{wch:10},{wch:10},{wch:14},{wch:16},{wch:14}
   ];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Template Import SKU');
@@ -946,10 +1079,15 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   XLSX.writeFile(wb, `central-master-part-export-${stamp}.xlsx`);
 });
 
-// ---- init ----
-extras = safeGetLS('mp_extras_v1', {});
-importedRows = safeGetLS('mp_imported_rows_v1', []);
-loadData();
+// ---- init (dipanggil hanya setelah login berhasil) ----
+let appInitialized = false;
+function initApp(){
+  if(appInitialized) return;
+  appInitialized = true;
+  extras = safeGetLS('mp_extras_v1', {});
+  importedRows = safeGetLS('mp_imported_rows_v1', []);
+  loadData();
+}
 </script>
 </body>
 </html>
