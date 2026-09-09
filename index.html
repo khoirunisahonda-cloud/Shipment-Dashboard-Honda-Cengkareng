@@ -198,6 +198,32 @@
   .doc-link a:hover{text-decoration:underline;}
   .doc-empty{margin-top:9px;font-size:12px;color:var(--faint);}
 
+  /* ---- tree view (kelompok SKU) ---- */
+  .tree-list{list-style:none;margin:0;padding:0;}
+  .tree-node{border-left:2px solid var(--line);margin-left:8px;}
+  .tree-node-head{
+    display:flex;align-items:center;gap:10px;padding:10px 0 10px 16px;
+    cursor:pointer;position:relative;
+  }
+  .tree-node-head:hover{background:var(--red-tint);}
+  .tree-toggle{width:14px;flex-shrink:0;color:var(--faint);font-size:10px;}
+  .tree-key{font-family:var(--mono);font-weight:700;font-size:12.5px;}
+  .tree-sample{font-size:12.5px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tree-count{font-size:11px;font-weight:700;color:var(--muted);background:var(--paper);padding:2px 9px;border-radius:10px;white-space:nowrap;}
+  .tree-children{display:none;padding-left:10px;}
+  .tree-node.open > .tree-children{display:block;}
+  .tree-leaf{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    padding:8px 0 8px 16px;border-left:2px solid var(--line);margin-left:8px;font-size:12.5px;
+  }
+  .tree-leaf-left{display:flex;align-items:center;gap:8px;min-width:0;}
+  .tree-leaf-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .side-badge{font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:10px;white-space:nowrap;}
+  .side-badge.kanan{background:var(--green-tint);color:var(--green);}
+  .side-badge.kiri{background:#e9edfd;color:#3538cd;}
+  .tree-note{padding:6px 0 10px 16px;font-size:11px;color:var(--faint);}
+  .empty-state{padding:30px 10px;text-align:center;color:var(--muted);font-size:13px;}
+
   .footer-note{margin-top:12px;font-size:12px;color:var(--faint);}
   .empty-state,.loading-state{padding:40px 10px;text-align:center;color:var(--muted);font-size:13px;}
   .error-state{padding:22px 16px;color:var(--red);font-size:12.5px;border:1px dashed var(--red);background:var(--red-tint);border-radius:4px;}
@@ -323,7 +349,7 @@
             <button class="btn small ghost" id="clearImport">Hapus Semua Data Import</button>
           </div>
           <div class="import-summary" id="importSummary"></div>
-          <div class="import-note">Belum tahu format kolomnya? Klik "Download Template" dulu, isi datanya di situ, baru upload lagi ke sini. SKU yang sudah ada di data (baik dari Sheets maupun dari import sebelumnya) otomatis dilewati dan tidak ditambahkan dobel — akan muncul peringatan di bawah kalau ada yang gagal beserta alasannya. Data import tersimpan otomatis di browser ini (localStorage), jadi tetap ada walau halaman di-refresh — tapi tetap khusus di browser/device ini saja. Gunakan tombol "Export ke Excel" untuk menyimpan cadangan filenya kapan saja.</div>
+          <div class="import-note">Belum tahu format kolomnya? Klik "Download Template" dulu, isi datanya di situ, baru upload lagi ke sini. <strong>SKU baru</strong> akan otomatis ditambahkan. <strong>SKU yang sudah ada</strong> di data tidak akan ditolak — kolom yang kamu isi akan meng-update data lama, sementara kolom yang kamu biarkan kosong tetap memakai data lama (tidak ikut terhapus/kosong). Jadi kalau cuma mau update Link Dokumentasi saja, kolom lain boleh dikosongkan. Data import & update tersimpan otomatis di browser ini (localStorage), tetap ada walau di-refresh — tapi khusus di browser/device ini saja. Gunakan tombol "Export ke Excel" untuk menyimpan cadangan filenya kapan saja.</div>
         </div>
       </div>
     </div>
@@ -370,30 +396,18 @@
 
   <div class="section">
     <div class="section-head">
-      <h2>Kelompok SKU (Varian Warna)</h2>
-      <p>SKU dengan 10 karakter awal yang sama biasanya adalah part yang sama, hanya beda warna/varian</p>
+      <h2>Kelompok SKU</h2>
+      <p>Pilih dasar pengelompokan: 10 karakter awal SKU (varian warna), atau berdasarkan judul produk (pasangan Kanan/Kiri)</p>
     </div>
     <div class="section-body">
       <div class="controls">
-        <input type="text" class="search-box" id="groupSearchBox" placeholder="Cari 10 SKU awal atau nama produk...">
+        <input type="text" class="search-box" id="groupSearchBox" placeholder="Cari SKU atau nama produk...">
+        <div class="chip active" data-mode="color">10 SKU Awal (Varian Warna)</div>
+        <div class="chip" data-mode="side">Kanan / Kiri (dari judul)</div>
         <div class="chip active" id="groupOnlyMultiToggle">Hanya grup ≥ 2 SKU</div>
+        <button class="btn small" id="exportGroupsBtn">Export Semua Grup ke Excel</button>
       </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>10 SKU Awal</th>
-              <th>Jumlah SKU</th>
-              <th>Contoh Nama Produk</th>
-              <th>Status dalam Grup</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="groupsBody">
-            <tr><td colspan="5"><div class="loading-state">Menunggu data…</div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <ul class="tree-list" id="groupsTree"></ul>
       <div class="footer-note" id="groupCountNote"></div>
     </div>
   </div>
@@ -455,7 +469,8 @@ let filterState = { status: 'ALL', incompleteOnly: false, q: '', skuList: null }
 let openDetail = new Set();
 let selectedForDelete = new Set();
 let openGroups = new Set();
-let groupState = { onlyMulti: true, q: '' };
+let groupState = { onlyMulti: true, q: '', mode: 'color' };
+let overrides = {};
 let currentPage = 1;
 const PAGE_SIZE = 50;
 
@@ -467,7 +482,20 @@ function safeSetLS(key, value){
   try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){ /* storage unavailable, ignore */ }
 }
 
-function rebuildRawRows(){ rawRows = sheetRows.concat(importedRows); }
+function computeIncomplete(row){
+  return (row.berat === 0 || row.volume === 0 || row.p === 0 || row.l === 0 || row.t === 0 || !row.statusRaw || !String(row.statusRaw).trim());
+}
+
+function buildEffectiveRow(baseRow){
+  const patch = overrides[baseRow.sku];
+  if(!patch || Object.keys(patch).length === 0) return baseRow;
+  const merged = Object.assign({}, baseRow, patch);
+  merged.statusCat = classifyStatus(merged.statusRaw);
+  merged.incomplete = computeIncomplete(merged);
+  return merged;
+}
+
+function rebuildRawRows(){ rawRows = sheetRows.concat(importedRows).map(buildEffectiveRow); }
 
 function findKey(headers, needles){
   const norm = h => h.toLowerCase().trim();
@@ -768,87 +796,130 @@ function computeGroups(rows){
   return map;
 }
 
+// ---- Kanan/Kiri: deteksi berdasarkan judul (Nama Produk) ----
+function extractSide(nama){
+  const n = (nama || '').toLowerCase();
+  if(/\bkanan\b/.test(n)) return 'KANAN';
+  if(/\bkiri\b/.test(n)) return 'KIRI';
+  if(/\brh\b/.test(n)) return 'KANAN';
+  if(/\blh\b/.test(n)) return 'KIRI';
+  const trimmed = n.trim();
+  if(/(^|\s)r$/.test(trimmed)) return 'KANAN';
+  if(/(^|\s)l$/.test(trimmed)) return 'KIRI';
+  return null;
+}
+function sideBaseName(nama){
+  let n = (nama || '').toLowerCase();
+  n = n.replace(/\bkanan\b/g, '').replace(/\bkiri\b/g, '');
+  n = n.replace(/\brh\b/g, '').replace(/\blh\b/g, '');
+  n = n.replace(/(^|\s)r$/, '').replace(/(^|\s)l$/, '');
+  return n.replace(/\s+/g, ' ').trim();
+}
+function computeSideGroups(rows){
+  const map = {};
+  rows.forEach(r => {
+    const side = extractSide(r.nama);
+    if(!side) return;
+    const key = sideBaseName(r.nama);
+    if(!key) return;
+    if(!map[key]) map[key] = [];
+    map[key].push(Object.assign({}, r, { _side: side }));
+  });
+  Object.keys(map).forEach(k => {
+    const sides = new Set(map[k].map(m => m._side));
+    if(map[k].length < 2 || sides.size < 2){ delete map[k]; }
+  });
+  return map;
+}
+
 function getFilteredGroups(){
-  const map = computeGroups(rawRows);
+  const isColor = groupState.mode === 'color';
+  const map = isColor ? computeGroups(rawRows) : computeSideGroups(rawRows);
   let entries = Object.entries(map);
-  if(groupState.onlyMulti){ entries = entries.filter(([k, members]) => members.length >= 2); }
+  if(isColor && groupState.onlyMulti){ entries = entries.filter(([k, members]) => members.length >= 2); }
   if(groupState.q){
     const q = groupState.q.toLowerCase();
     entries = entries.filter(([k, members]) =>
-      k.toLowerCase().includes(q) || members.some(m => m.nama.toLowerCase().includes(q))
+      k.toLowerCase().includes(q) || members.some(m => m.sku.toLowerCase().includes(q) || m.nama.toLowerCase().includes(q))
     );
   }
   entries.sort((a, b) => b[1].length - a[1].length);
   const totalMatching = entries.length;
   if(!groupState.q){ entries = entries.slice(0, 5); }
-  return { entries, totalMatching };
+  return { entries, totalMatching, totalAll: Object.keys(map).length };
 }
 
-function groupDetailHtml(members){
+function plMismatchInfo(members){
   const plKey = m => `${m.p}x${m.l}x${m.t}`;
   const freq = {};
-  members.forEach(m => {
-    if(m.p || m.l || m.t){ const k = plKey(m); freq[k] = (freq[k] || 0) + 1; }
-  });
+  members.forEach(m => { if(m.p || m.l || m.t){ const k = plKey(m); freq[k] = (freq[k] || 0) + 1; } });
   let refKey = null, refCount = 0;
   Object.entries(freq).forEach(([k, c]) => { if(c > refCount){ refCount = c; refKey = k; } });
+  return { plKey, refKey };
+}
 
-  return `
-    <div class="detail-inner" style="display:block;padding:14px 20px;">
-      <ul class="log-list">
-        ${members.map(m => {
-          const hasDims = (m.p || m.l || m.t);
-          const key = plKey(m);
-          const mismatch = hasDims && refKey && key !== refKey;
-          return `
-          <li style="${mismatch ? 'background:var(--amber-tint);border-radius:4px;padding-left:8px;padding-right:8px;' : ''}">
-            <span class="lk"><span class="sku">${m.sku}</span> — ${m.nama || '<span class="dim">(nama kosong)</span>'}</span>
-            <span class="lv" style="display:flex;align-items:center;gap:8px;">
-              <span class="dim">${hasDims ? `P${m.p}×L${m.l}×T${m.t} • ${m.berat || 0}g` : 'PLT belum diisi'}</span>
-              ${(m.statusCat === 'FAST' || m.statusCat === 'NONFAST') ? '' : `<span class="badge ${statusBadgeClass(m.statusCat)}">${statusLabel(m.statusCat, m.statusRaw) || '—'}</span>`}
-              ${mismatch ? '<span class="flag">⚠ beda dgn grup</span>' : ''}
-            </span>
-          </li>`;
-        }).join('')}
-      </ul>
-      ${refKey ? `<div class="footer-note" style="margin-top:10px;">PLT acuan grup ini (paling sering muncul): <span class="dim">${refKey.replace('x',' × ').replace('x',' × ')}</span></div>` : ''}
-    </div>`;
+function groupChildrenHtml(members, isColor){
+  const { plKey, refKey } = plMismatchInfo(members);
+  return members.map(m => {
+    const hasDims = (m.p || m.l || m.t);
+    const mismatch = hasDims && refKey && plKey(m) !== refKey;
+    const statusBadge = (m.statusCat === 'FAST' || m.statusCat === 'NONFAST')
+      ? '' : `<span class="badge ${statusBadgeClass(m.statusCat)}">${statusLabel(m.statusCat, m.statusRaw) || '—'}</span>`;
+    const sideBadge = (!isColor && m._side) ? `<span class="side-badge ${m._side === 'KANAN' ? 'kanan' : 'kiri'}">${m._side}</span>` : '';
+    return `
+      <li class="tree-leaf">
+        <div class="tree-leaf-left">
+          <span class="sku">${m.sku}</span>
+          <span class="dim">${m.nama || '(nama kosong)'}</span>
+        </div>
+        <div class="tree-leaf-right">
+          <span class="dim">${hasDims ? `P${m.p}×L${m.l}×T${m.t} • ${m.berat || 0}g` : 'PLT belum diisi'}</span>
+          ${statusBadge}
+          ${sideBadge}
+          ${mismatch ? '<span class="flag">⚠ beda dgn grup</span>' : ''}
+        </div>
+      </li>`;
+  }).join('');
 }
 
 function renderGroups(){
-  const { entries, totalMatching } = getFilteredGroups();
-  const tbody = document.getElementById('groupsBody');
+  const isColor = groupState.mode === 'color';
+  const { entries, totalMatching, totalAll } = getFilteredGroups();
+  const treeEl = document.getElementById('groupsTree');
+  document.getElementById('groupOnlyMultiToggle').style.display = isColor ? 'inline-block' : 'none';
+
   if(entries.length === 0){
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">Tidak ada grup yang cocok.</div></td></tr>`;
+    treeEl.innerHTML = `<div class="empty-state">Tidak ada grup yang cocok.</div>`;
   } else {
-    tbody.innerHTML = entries.map(([key, members]) => {
-      const isOpen = openGroups.has(key);
-      const statuses = [...new Set(members.map(m => m.statusCat))].filter(s => s !== 'FAST' && s !== 'NONFAST');
-      const statusBadges = statuses.map(s => `<span class="badge ${statusBadgeClass(s)}">${s}</span>`).join(' ') || '<span class="dim">—</span>';
+    treeEl.innerHTML = entries.map(([key, members]) => {
+      const isOpen = openGroups.has(groupState.mode + ':' + key);
       const sampleName = (members.find(m => m.nama)?.nama || '—');
       return `
-      <tr class="datarow" data-group="${key}">
-        <td class="sku">${key}</td>
-        <td class="dim">${members.length}</td>
-        <td class="prodname">${sampleName}</td>
-        <td>${statusBadges}</td>
-        <td class="chevron">${isOpen ? '▲' : '▼'}</td>
-      </tr>
-      <tr class="detail-row ${isOpen ? 'open' : ''}">
-        <td colspan="5">${isOpen ? groupDetailHtml(members) : ''}</td>
-      </tr>`;
+      <li class="tree-node ${isOpen ? 'open' : ''}" data-group="${key}">
+        <div class="tree-node-head">
+          <span class="tree-toggle">${isOpen ? '▾' : '▸'}</span>
+          <span class="tree-key">${key}</span>
+          <span class="tree-sample">${sampleName}</span>
+          <span class="tree-count">${members.length} SKU</span>
+        </div>
+        <ul class="tree-children">
+          ${groupChildrenHtml(members, isColor)}
+        </ul>
+      </li>`;
     }).join('');
   }
-  const totalGroups = Object.values(computeGroups(rawRows)).filter(m => m.length >= 2).length;
+
+  const modeLabel = isColor ? 'grup varian warna (10 SKU awal)' : 'grup Kanan/Kiri (dari judul)';
   const cappedNote = (!groupState.q && totalMatching > entries.length)
     ? ` — menampilkan 5 grup terbesar saja, ketik di kolom pencarian untuk lihat grup lainnya`
     : '';
-  document.getElementById('groupCountNote').textContent = `Menampilkan ${entries.length.toLocaleString('id-ID')} dari ${totalMatching.toLocaleString('id-ID')} grup yang cocok (total keseluruhan ${totalGroups.toLocaleString('id-ID')} grup varian warna)${cappedNote}`;
-  document.getElementById('kGroups').textContent = totalGroups.toLocaleString('id-ID');
+  document.getElementById('groupCountNote').textContent = `Menampilkan ${entries.length.toLocaleString('id-ID')} dari ${totalMatching.toLocaleString('id-ID')} ${modeLabel} (total keseluruhan ${totalAll.toLocaleString('id-ID')} grup)${cappedNote}`;
+  document.getElementById('kGroups').textContent = Object.values(computeGroups(rawRows)).filter(m => m.length >= 2).length.toLocaleString('id-ID');
 
-  document.querySelectorAll('#groupsBody tr.datarow').forEach(tr => {
-    tr.addEventListener('click', () => {
-      const key = tr.dataset.group;
+  document.querySelectorAll('#groupsTree .tree-node-head').forEach(head => {
+    head.addEventListener('click', () => {
+      const node = head.closest('.tree-node');
+      const key = groupState.mode + ':' + node.dataset.group;
       if(openGroups.has(key)) openGroups.delete(key); else openGroups.add(key);
       renderGroups();
     });
@@ -863,6 +934,56 @@ document.getElementById('groupOnlyMultiToggle').addEventListener('click', (e) =>
   groupState.onlyMulti = !groupState.onlyMulti;
   e.target.classList.toggle('active', groupState.onlyMulti);
   renderGroups();
+});
+document.querySelectorAll('.chip[data-mode]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip[data-mode]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    groupState.mode = chip.dataset.mode;
+    renderGroups();
+  });
+});
+
+document.getElementById('exportGroupsBtn').addEventListener('click', () => {
+  const isColor = groupState.mode === 'color';
+  const map = isColor ? computeGroups(rawRows) : computeSideGroups(rawRows);
+  const entries = Object.entries(map)
+    .filter(([k, members]) => members.length >= 2)
+    .sort((a, b) => a[0].localeCompare(b[0]));
+
+  const exportRows = [];
+  entries.forEach(([key, members]) => {
+    members.sort((a, b) => a.sku.localeCompare(b.sku)).forEach(m => {
+      const ex = getExtra(m.sku);
+      const row = {
+        [isColor ? '10 SKU Awal' : 'Judul Dasar']: key,
+        'SKU Induk': m.sku,
+        'Nama Produk': m.nama,
+        'Berat Produk (g)': m.berat,
+        'Volume (g)': m.volume,
+        'Panjang': m.p,
+        'Lebar': m.l,
+        'Tinggi': m.t,
+        'Tgl Input OPS': m.tglOps,
+        'Tanggal Input MP': m.tglMp,
+        'Tanggal Revisi': m.tglRevisi,
+        'Link Dokumentasi': ex.docLink || ''
+      };
+      if(!isColor) row['Sisi'] = m._side || '';
+      exportRows.push(row);
+    });
+  });
+
+  if(exportRows.length === 0){ alert('Belum ada grup (≥ 2 SKU) untuk diexport pada mode ini.'); return; }
+
+  const ws = XLSX.utils.json_to_sheet(exportRows);
+  ws['!cols'] = [
+    {wch:14},{wch:16},{wch:28},{wch:14},{wch:12},{wch:10},{wch:10},{wch:10},{wch:14},{wch:16},{wch:14},{wch:36}
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, isColor ? 'Grup Warna' : 'Grup Kanan-Kiri');
+  const stamp = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `${isColor ? 'grup-varian-warna' : 'grup-kanan-kiri'}-${stamp}.xlsx`);
 });
 
 function renderAll(){
@@ -946,6 +1067,7 @@ function mapImportedRows(headers, dataRows){
   const kTglOps = findKey(headers, ['tgl input ops', 'tgl ops']);
   const kTglMp = findKey(headers, ['tanggal input mp', 'input mp', 'input web']);
   const kTglRevisi = findKey(headers, ['revisi']);
+  const kDocLink = findKey(headers, ['link dokumentasi', 'dokumentasi', 'link']);
 
   if(!kSku) return { error: 'Kolom SKU tidak ditemukan di file. Pastikan ada kolom bernama "SKU" atau "SKU Induk".' };
 
@@ -969,6 +1091,7 @@ function mapImportedRows(headers, dataRows){
         tglOps: kTglOps ? String(r[kTglOps] || '').trim() : '',
         tglMp: kTglMp ? String(r[kTglMp] || '').trim() : '',
         tglRevisi: kTglRevisi ? String(r[kTglRevisi] || '').trim() : '',
+        docLink: kDocLink ? String(r[kDocLink] || '').trim() : '',
         incomplete,
         source: 'import'
       };
@@ -980,32 +1103,52 @@ function finishImport(result, fileName){
   const summaryEl = document.getElementById('importSummary');
   if(result.error){ summaryEl.innerHTML = `<span style="color:var(--red)">${result.error}</span>`; return; }
 
-  const existingSkus = new Set(rawRows.map(r => r.sku.toUpperCase()));
+  const existingSkuMap = new Map(rawRows.map(r => [r.sku.toUpperCase(), r.sku]));
   const seenInFile = new Set();
   const added = [];
-  const skippedExisting = [];
+  const updated = [];
   const skippedDupInFile = [];
 
   result.rows.forEach(r => {
     const key = r.sku.toUpperCase();
-    if(existingSkus.has(key)){ skippedExisting.push(r.sku); return; }
     if(seenInFile.has(key)){ skippedDupInFile.push(r.sku); return; }
     seenInFile.add(key);
-    added.push(r);
+
+    if(existingSkuMap.has(key)){
+      const realSku = existingSkuMap.get(key);
+      const patch = {};
+      if(r.statusRaw) patch.statusRaw = r.statusRaw;
+      if(r.nama) patch.nama = r.nama;
+      if(r.berat > 0) patch.berat = r.berat;
+      if(r.volume > 0) patch.volume = r.volume;
+      if(r.p > 0) patch.p = r.p;
+      if(r.l > 0) patch.l = r.l;
+      if(r.t > 0) patch.t = r.t;
+      if(r.tglOps) patch.tglOps = r.tglOps;
+      if(r.tglMp) patch.tglMp = r.tglMp;
+      if(r.tglRevisi) patch.tglRevisi = r.tglRevisi;
+      overrides[realSku] = Object.assign(overrides[realSku] || {}, patch);
+      safeSetLS('mp_overrides_v1', overrides);
+      if(r.docLink){ setExtra(realSku, { docLink: r.docLink }); }
+      updated.push(realSku);
+    } else {
+      importedRows.push(r);
+      if(r.docLink){ setExtra(r.sku, { docLink: r.docLink }); }
+      added.push(r.sku);
+    }
   });
 
-  importedRows = importedRows.concat(added);
   safeSetLS('mp_imported_rows_v1', importedRows);
   rebuildRawRows();
 
-  let html = `<span class="ok">${added.length} SKU dari "${fileName}" berhasil ditambahkan.</span>`;
-  if(skippedExisting.length){
-    html += `<br><span style="color:var(--red)">${skippedExisting.length} SKU gagal — sudah ada di data (Sheets/import sebelumnya): ${skippedExisting.slice(0,20).join(', ')}${skippedExisting.length > 20 ? ', …' : ''}</span>`;
-  }
+  let html = '';
+  if(added.length){ html += `<span class="ok">${added.length} SKU baru berhasil ditambahkan.</span><br>`; }
+  if(updated.length){ html += `<span class="ok">${updated.length} SKU sudah ada, kolom yang diisi berhasil diupdate</span> (kolom kosong tidak menimpa data lama): ${updated.slice(0,20).join(', ')}${updated.length > 20 ? ', …' : ''}<br>`; }
   if(skippedDupInFile.length){
-    html += `<br><span style="color:var(--amber)">${skippedDupInFile.length} SKU gagal — duplikat di dalam file yang sama: ${skippedDupInFile.slice(0,20).join(', ')}${skippedDupInFile.length > 20 ? ', …' : ''}</span>`;
+    html += `<span style="color:var(--amber)">${skippedDupInFile.length} SKU gagal — duplikat di dalam file yang sama: ${skippedDupInFile.slice(0,20).join(', ')}${skippedDupInFile.length > 20 ? ', …' : ''}</span><br>`;
   }
-  html += `<br>Total data import saat ini: ${importedRows.length}.`;
+  if(!added.length && !updated.length && !skippedDupInFile.length){ html = 'Tidak ada baris valid yang diproses dari file ini.'; }
+  html += `Total data import saat ini: ${importedRows.length}.`;
   summaryEl.innerHTML = html;
   renderAll();
 }
@@ -1058,12 +1201,13 @@ document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
       'Tinggi': 8,
       'Tgl Input OPS': '01/09/2026',
       'Tanggal Input MP': '02/09/2026',
-      'Tanggal Revisi': ''
+      'Tanggal Revisi': '',
+      'Link Dokumentasi': 'https://drive.google.com/contoh-link-foto-pengukuran'
     }
   ];
   const ws = XLSX.utils.json_to_sheet(templateRows);
   ws['!cols'] = [
-    {wch:16},{wch:28},{wch:14},{wch:12},{wch:10},{wch:10},{wch:10},{wch:14},{wch:16},{wch:14}
+    {wch:16},{wch:28},{wch:14},{wch:12},{wch:10},{wch:10},{wch:10},{wch:14},{wch:16},{wch:14},{wch:36}
   ];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Template Import SKU');
@@ -1108,6 +1252,7 @@ function initApp(){
   appInitialized = true;
   extras = safeGetLS('mp_extras_v1', {});
   importedRows = safeGetLS('mp_imported_rows_v1', []);
+  overrides = safeGetLS('mp_overrides_v1', {});
   loadData();
 }
 </script>
