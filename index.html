@@ -663,7 +663,7 @@ function renderTable(){
       <tr class="datarow ${r.incomplete ? 'incomplete' : ''}" data-sku="${r.sku}">
         <td onclick="event.stopPropagation()">${checkboxCell}</td>
         <td class="sku">${r.sku}</td>
-        <td><span class="badge ${statusBadgeClass(r.statusCat)}">${statusLabel(r.statusCat, r.statusRaw) || '—'}</span></td>
+        <td>${(r.statusCat === 'FAST' || r.statusCat === 'NONFAST') ? '<span class="dim">—</span>' : `<span class="badge ${statusBadgeClass(r.statusCat)}">${statusLabel(r.statusCat, r.statusRaw) || '—'}</span>`}</td>
         <td class="prodname">${r.nama || '<span class="dim">—</span>'}${r.incomplete ? '<span class="flag">Belum lengkap</span>' : ''}</td>
         <td class="dim">${r.berat ? r.berat.toLocaleString('id-ID') : '—'}</td>
         <td class="dim">${r.volume ? r.volume.toLocaleString('id-ID') : '—'}</td>
@@ -779,25 +779,44 @@ function getFilteredGroups(){
     );
   }
   entries.sort((a, b) => b[1].length - a[1].length);
-  return entries;
+  const totalMatching = entries.length;
+  if(!groupState.q){ entries = entries.slice(0, 5); }
+  return { entries, totalMatching };
 }
 
 function groupDetailHtml(members){
+  const plKey = m => `${m.p}x${m.l}x${m.t}`;
+  const freq = {};
+  members.forEach(m => {
+    if(m.p || m.l || m.t){ const k = plKey(m); freq[k] = (freq[k] || 0) + 1; }
+  });
+  let refKey = null, refCount = 0;
+  Object.entries(freq).forEach(([k, c]) => { if(c > refCount){ refCount = c; refKey = k; } });
+
   return `
     <div class="detail-inner" style="display:block;padding:14px 20px;">
       <ul class="log-list">
-        ${members.map(m => `
-          <li>
+        ${members.map(m => {
+          const hasDims = (m.p || m.l || m.t);
+          const key = plKey(m);
+          const mismatch = hasDims && refKey && key !== refKey;
+          return `
+          <li style="${mismatch ? 'background:var(--amber-tint);border-radius:4px;padding-left:8px;padding-right:8px;' : ''}">
             <span class="lk"><span class="sku">${m.sku}</span> — ${m.nama || '<span class="dim">(nama kosong)</span>'}</span>
-            <span class="lv">${(m.statusCat === 'FAST' || m.statusCat === 'NONFAST') ? '' : `<span class="badge ${statusBadgeClass(m.statusCat)}">${statusLabel(m.statusCat, m.statusRaw) || '—'}</span>`}</span>
-          </li>
-        `).join('')}
+            <span class="lv" style="display:flex;align-items:center;gap:8px;">
+              <span class="dim">${hasDims ? `P${m.p}×L${m.l}×T${m.t} • ${m.berat || 0}g` : 'PLT belum diisi'}</span>
+              ${(m.statusCat === 'FAST' || m.statusCat === 'NONFAST') ? '' : `<span class="badge ${statusBadgeClass(m.statusCat)}">${statusLabel(m.statusCat, m.statusRaw) || '—'}</span>`}
+              ${mismatch ? '<span class="flag">⚠ beda dgn grup</span>' : ''}
+            </span>
+          </li>`;
+        }).join('')}
       </ul>
+      ${refKey ? `<div class="footer-note" style="margin-top:10px;">PLT acuan grup ini (paling sering muncul): <span class="dim">${refKey.replace('x',' × ').replace('x',' × ')}</span></div>` : ''}
     </div>`;
 }
 
 function renderGroups(){
-  const entries = getFilteredGroups();
+  const { entries, totalMatching } = getFilteredGroups();
   const tbody = document.getElementById('groupsBody');
   if(entries.length === 0){
     tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">Tidak ada grup yang cocok.</div></td></tr>`;
@@ -821,7 +840,10 @@ function renderGroups(){
     }).join('');
   }
   const totalGroups = Object.values(computeGroups(rawRows)).filter(m => m.length >= 2).length;
-  document.getElementById('groupCountNote').textContent = `Menampilkan ${entries.length.toLocaleString('id-ID')} grup dari total ${totalGroups.toLocaleString('id-ID')} grup varian warna (≥ 2 SKU)`;
+  const cappedNote = (!groupState.q && totalMatching > entries.length)
+    ? ` — menampilkan 5 grup terbesar saja, ketik di kolom pencarian untuk lihat grup lainnya`
+    : '';
+  document.getElementById('groupCountNote').textContent = `Menampilkan ${entries.length.toLocaleString('id-ID')} dari ${totalMatching.toLocaleString('id-ID')} grup yang cocok (total keseluruhan ${totalGroups.toLocaleString('id-ID')} grup varian warna)${cappedNote}`;
   document.getElementById('kGroups').textContent = totalGroups.toLocaleString('id-ID');
 
   document.querySelectorAll('#groupsBody tr.datarow').forEach(tr => {
