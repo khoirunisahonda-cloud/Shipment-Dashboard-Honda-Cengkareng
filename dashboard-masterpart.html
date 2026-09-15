@@ -293,7 +293,7 @@
     <div class="kpi k-super"><div class="label">Supersede</div><div class="num" id="kSupersede">–</div><div class="sub">perlu ganti SKU</div></div>
     <div class="kpi k-disc"><div class="label">Discontinue</div><div class="num" id="kDiscontinue">–</div><div class="sub">tidak dijual lagi</div></div>
     <div class="kpi k-incomplete"><div class="label">Data Belum Lengkap</div><div class="num" id="kIncomplete">–</div><div class="sub">berat/dimensi = 0</div></div>
-    <div class="kpi" style="border-left-color:#0f766e;"><div class="label" >Grup Varian Warna</div><div class="num" id="kGroups" style="color:#0f766e;">–</div><div class="sub">SKU dgn 10 karakter awal sama</div></div>
+    <div class="kpi" style="border-left-color:#0f766e;"><div class="label" >Grup Varian/Kiri-Kanan</div><div class="num" id="kGroups" style="color:#0f766e;">–</div><div class="sub">10 char SKU sama atau pasangan L/R</div></div>
   </div>
 
   <div class="section">
@@ -370,7 +370,7 @@
 
   <div class="section">
     <div class="section-head">
-      <h2>Kelompok SKU (Varian Warna)</h2>
+      <h2>Kelompok SKU (Varian Warna / Kiri-Kanan)</h2>
       <p>SKU dengan 10 karakter awal yang sama biasanya adalah part yang sama, hanya beda warna/varian</p>
     </div>
     <div class="section-body">
@@ -443,7 +443,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 
 const SHEET_ID = '1X7LWev4Es_0cEaCIZz1kFXQ4_6yJ35Nx8l-2beLTmZ4';
-const GID = '551734447';
+const GID = '558503409';
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
 
 let sheetRows = [];
@@ -758,24 +758,62 @@ document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
   renderAll();
 });
 
+function normalizeName(name){
+  return String(name || '').trim().toUpperCase().replace(/\s+/g, ' ');
+}
+
+// Cari kode L/R yang berdiri sendiri sebagai kata terpisah di nama produk,
+// mis. "COVER COMP R BODYTE" atau "COVER L HDL TOP(BR LM GR)".
+// Mengembalikan "nama dasar" (nama tanpa kode L/R) supaya pasangan
+// Kiri/Kanan bisa dicocokkan, atau null kalau tidak ada kode L/R.
+function extractLRKey(name){
+  const norm = normalizeName(name);
+  if(!norm) return null;
+  const tokens = norm.split(' ');
+  const idx = tokens.findIndex(t => t === 'L' || t === 'R');
+  if(idx === -1) return null;
+  const rest = tokens.slice(0, idx).concat(tokens.slice(idx + 1));
+  return rest.join(' ');
+}
+
+// Gabungkan SKU jadi satu grup kalau memenuhi SALAH SATU dari:
+//  1) 10 karakter awal SKU sama (varian warna/dokumen)
+//  2) nama produk sama setelah kode L/R (berdiri sendiri) dibuang (pasangan kiri-kanan)
 function computeGroups(rows){
-  const map = {};
-  rows.forEach(r => {
-    const key = r.sku.trim().toUpperCase().slice(0, 10);
-    if(!map[key]) map[key] = [];
-    map[key].push(r);
+  const n = rows.length;
+  const parent = Array.from({length: n}, (_, i) => i);
+  function find(x){ while(parent[x] !== x){ parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+  function union(a, b){ const ra = find(a), rb = find(b); if(ra !== rb) parent[ra] = rb; }
+
+  const skuKeyMap = {};
+  const nameKeyMap = {};
+  rows.forEach((r, i) => {
+    const skuKey = r.sku.trim().toUpperCase().slice(0, 10);
+    if(skuKeyMap[skuKey] === undefined) skuKeyMap[skuKey] = i; else union(i, skuKeyMap[skuKey]);
+
+    const nameKey = extractLRKey(r.nama);
+    if(nameKey){
+      if(nameKeyMap[nameKey] === undefined) nameKeyMap[nameKey] = i; else union(i, nameKeyMap[nameKey]);
+    }
   });
-  return map;
+
+  const groupsMap = {};
+  rows.forEach((r, i) => {
+    const root = find(i);
+    if(!groupsMap[root]) groupsMap[root] = [];
+    groupsMap[root].push(r);
+  });
+  return Object.values(groupsMap);
 }
 
 function getFilteredGroups(){
-  const map = computeGroups(rawRows);
-  let entries = Object.entries(map);
+  const groups = computeGroups(rawRows);
+  let entries = groups.map(members => [members[0].sku.trim().toUpperCase().slice(0, 10), members]);
   if(groupState.onlyMulti){ entries = entries.filter(([k, members]) => members.length >= 2); }
   if(groupState.q){
     const q = groupState.q.toLowerCase();
     entries = entries.filter(([k, members]) =>
-      k.toLowerCase().includes(q) || members.some(m => m.nama.toLowerCase().includes(q))
+      k.toLowerCase().includes(q) || members.some(m => m.nama.toLowerCase().includes(q) || m.sku.toLowerCase().includes(q))
     );
   }
   entries.sort((a, b) => b[1].length - a[1].length);
@@ -820,8 +858,8 @@ function renderGroups(){
       </tr>`;
     }).join('');
   }
-  const totalGroups = Object.values(computeGroups(rawRows)).filter(m => m.length >= 2).length;
-  document.getElementById('groupCountNote').textContent = `Menampilkan ${entries.length.toLocaleString('id-ID')} grup dari total ${totalGroups.toLocaleString('id-ID')} grup varian warna (≥ 2 SKU)`;
+  const totalGroups = computeGroups(rawRows).filter(m => m.length >= 2).length;
+  document.getElementById('groupCountNote').textContent = `Menampilkan ${entries.length.toLocaleString('id-ID')} grup dari total ${totalGroups.toLocaleString('id-ID')} grup (10 char SKU sama / pasangan L-R) (≥ 2 SKU)`;
   document.getElementById('kGroups').textContent = totalGroups.toLocaleString('id-ID');
 
   document.querySelectorAll('#groupsBody tr.datarow').forEach(tr => {
