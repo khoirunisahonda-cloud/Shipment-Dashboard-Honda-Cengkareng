@@ -43,7 +43,7 @@
     min-height: 100vh;
   }
 
-  /* ---- Sidebar (Kiri Modern) ---- */
+  /* ---- Sidebar Kiri Modern ---- */
   aside.sidebar {
     width: 270px;
     background: var(--white);
@@ -55,25 +55,36 @@
     height: 100vh;
     z-index: 30;
     flex-shrink: 0;
-    box-shadow: 2px 0 12px rgba(0,0,0,0.02);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.03);
   }
   .sidebar-brand {
-    padding: 20px 18px;
+    padding: 22px 20px;
     border-bottom: 1px solid var(--line);
     display: flex;
     align-items: center;
     gap: 14px;
   }
+  
+  /* Logo tanpa lingkaran merah + Ukuran diperbesar */
   .sidebar-brand-icon {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    border: 2px solid var(--red);
-    overflow: hidden; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: #fff;
-    box-shadow: 0 4px 10px rgba(228,0,43,0.15);
+    width: 60px; 
+    height: 60px;
+    border: none;
+    border-radius: 0;
+    overflow: hidden; 
+    flex-shrink: 0;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: transparent;
+    box-shadow: none;
   }
-  .sidebar-brand-icon img { width: 100%; height: 100%; object-fit: cover; }
+  .sidebar-brand-icon img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; 
+  }
+
   .sidebar-brand-text { display: flex; flex-direction: column; }
   .sidebar-brand-text .title { font-size: 11px; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: 0.08em; }
   .sidebar-brand-text .subtitle { font-size: 15px; font-weight: 800; color: var(--ink); margin: 0; line-height: 1.2; }
@@ -86,7 +97,6 @@
     flex: 1;
   }
   
-  /* Modern Nav Items tanpa karakter aneh */
   .nav-btn {
     display: flex; align-items: center; gap: 12px;
     padding: 12px 16px;
@@ -144,7 +154,7 @@
   }
   .kpi{
     background:var(--white);border:1px solid var(--line);border-left:4px solid var(--ink);
-    padding:16px 16px 14px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    padding:16px 16px 14px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   }
   .kpi .label{font-size:12px;color:var(--muted);font-weight:700; text-transform: uppercase; letter-spacing: 0.03em;}
   .kpi .num{font-size:26px;font-weight:800;margin-top:6px;letter-spacing:-0.02em;}
@@ -176,10 +186,8 @@
   }
   .file-drop:hover{border-color:var(--red);color:var(--red); background: var(--red-tint);}
   .file-drop input{display:none;}
-  .import-note{font-size:11.5px;color:var(--faint);margin-top:8px;line-height:1.5;}
   .bulk-summary,.import-summary{margin-top:9px;font-size:12px;color:var(--muted);line-height:1.6;}
   .bulk-summary .ok,.import-summary .ok{color:var(--green);font-weight:700;}
-  .bulk-summary .miss{color:var(--red); font-weight:700;}
 
   .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px;}
   .search-box{
@@ -220,6 +228,12 @@
   .badge.other{color:var(--faint);background:#f1f2f4;}
   .badge.src-import{color:var(--amber);background:var(--amber-tint);}
   .badge.src-sheets{color:var(--faint);background:#f1f2f4;}
+  
+  /* Status Marketplace Badges */
+  .badge-approved { background: var(--green-tint); color: var(--green); border: 1px solid #c3e6cb; }
+  .badge-pending { background: var(--amber-tint); color: var(--amber); border: 1px solid #ffeeba; }
+  .badge-rejected { background: var(--red-tint); color: var(--red); border: 1px solid #f5c6cb; }
+
   .dim{color:var(--muted);font-family:var(--mono);font-size:12px;}
   .prodname{max-width:300px; font-weight:600;}
   .flag{color:var(--amber);font-size:11px;margin-left:6px;font-weight:700;}
@@ -244,16 +258,6 @@
     border:1px solid var(--line);background:#fff;font-size:12px;font-weight:700;color:var(--muted);
   }
   .mp-toggle.on{background:var(--green-tint);border-color:var(--green);color:var(--green);}
-  .doc-row{display:flex;gap:8px;flex-wrap:wrap;}
-  .doc-row input[type=text]{
-    flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--line);border-radius:6px;
-    font-size:12.5px;font-family:var(--font);
-  }
-  .doc-row input[type=text]:focus{outline:none;border-color:var(--red); background:#fff;}
-  .doc-link{margin-top:10px;font-size:12.5px;}
-  .doc-link a{color:var(--red);font-weight:700;text-decoration:none;}
-  .doc-link a:hover{text-decoration:underline;}
-  .doc-empty{margin-top:10px;font-size:12px;color:var(--faint);}
 
   .footer-note{margin-top:14px;font-size:12px;color:var(--faint);}
   .empty-state,.loading-state{padding:48px 10px;text-align:center;color:var(--muted);font-size:13.5px; font-weight:600;}
@@ -320,6 +324,10 @@
     font-family:var(--mono);font-size:12px;padding:10px 12px;border-radius:6px;
   }
 
+  .status-cell-wrapper {
+    display: flex; flex-direction: column; gap: 4px; font-size: 11.5px;
+  }
+
   @media (max-width:1024px){
     .layout-container { flex-direction: column; }
     aside.sidebar { width: 100%; height: auto; position: relative; }
@@ -327,6 +335,7 @@
     .kpis{grid-template-columns:repeat(2,1fr);}
     .import-grid{grid-template-columns:1fr;}
     .detail-grid{grid-template-columns:1fr;}
+    .selisih-source-grid{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -360,8 +369,9 @@
     <aside class="sidebar">
       <div class="sidebar-brand">
         <div class="sidebar-brand-icon">
-  <img src="logo.jpg" alt="Honda Cengkareng Logo">
-</div>
+          <!-- Logo tanpa lingkaran merah (Opsi 1: logo.jpg) -->
+          <img src="logo.jpg" alt="Honda Cengkareng Logo">
+        </div>
         <div class="sidebar-brand-text">
           <span class="title">Honda Cengkareng</span>
           <span class="subtitle">Central Master Part</span>
@@ -483,11 +493,12 @@
           </div>
         </div>
 
+        <!-- TABEL KELOMPOK SKU (RINGKAS TANPA PLT & MARKETPLACE) -->
         <div class="section">
           <div class="section-head">
             <div>
               <h2>Kelompok SKU (Varian Warna / Kiri-Kanan)</h2>
-              <p>SKU dengan 10 karakter awal yang sama atau tipe motor yang sama</p>
+              <p>SKU yang memiliki Kode Motor Resmi Honda &amp; Karakter Varian Sama (Part Universal/Baut Otomatis di-Skip)</p>
             </div>
           </div>
           <div class="section-body">
@@ -501,18 +512,15 @@
                 <thead>
                   <tr>
                     <th>10 SKU Awal</th>
-                    <th>Tipe Motor</th>
-                    <th>Jumlah SKU</th>
-                    <th>Contoh Nama Produk</th>
-                    <th>P × L × T (Acuan)</th>
-                    <th>Berat/Volume (Acuan)</th>
-                    <th>Status dalam Grup</th>
-                    <th>Status Data</th>
+                    <th>Tipe Motor Honda</th>
+                    <th>Jumlah SKU Varian</th>
+                    <th>Nama Produk (Acuan)</th>
+                    <th>Status Varian</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody id="groupsBody">
-                  <tr><td colspan="9"><div class="loading-state">Menunggu data…</div></td></tr>
+                  <tr><td colspan="6"><div class="loading-state">Menunggu data…</div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -560,11 +568,12 @@
           </div>
         </div>
 
+        <!-- KPI SELISIH STATISTIK (APPROVED / PENDING / REJECTED) -->
         <div class="kpis" id="selisihKpiRow" style="grid-template-columns:repeat(4,1fr);">
           <div class="kpi"><div class="label">Total Selisih (Seluruh Periode)</div><div class="num" id="skTotal">–</div><div class="sub">gabungan semua marketplace</div></div>
-          <div class="kpi k-disc"><div class="label">Rata-rata Selisih / Minggu</div><div class="num" id="skAvgWeek">–</div><div class="sub" id="skWeekCount">–</div></div>
-          <div class="kpi k-super"><div class="label">Minggu Selisih Terbesar</div><div class="num" id="skWorstWeek" style="font-size:16px;">–</div><div class="sub" id="skWorstWeekVal">–</div></div>
-          <div class="kpi k-incomplete"><div class="label">Status Transaksi (Approve vs Pending)</div><div class="num" id="skTxCount" style="font-size:18px;">–</div><div class="sub" id="skTxSub">–</div></div>
+          <div class="kpi k-fast"><div class="label">Total Approved</div><div class="num" id="skApproved">–</div><div class="sub">transaksi disetujui</div></div>
+          <div class="kpi k-incomplete"><div class="label">Total Pending</div><div class="num" id="skPending">–</div><div class="sub">menunggu konfirmasi</div></div>
+          <div class="kpi k-disc"><div class="label">Total Rejected</div><div class="num" id="skRejected">–</div><div class="sub">transaksi ditolak</div></div>
         </div>
 
         <div class="section">
@@ -590,6 +599,7 @@
           <div class="section-head">
             <div>
               <h2>Rekap Tabel Selisih & Status Approval per MP</h2>
+              <p>Rincian nilai selisih dan breakdown status Approved / Pending / Rejected per Marketplace</p>
             </div>
           </div>
           <div class="section-body">
@@ -597,12 +607,12 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Minggu</th>
+                    <th>Minggu / Tanggal</th>
                     <th>Shopee (Selisih / Status)</th>
                     <th>Lazada (Selisih / Status)</th>
                     <th>TikTok (Selisih / Status)</th>
-                    <th>Total Selisih</th>
-                    <th>Total Approved / Pending</th>
+                    <th>Total Selisih Minggu Ini</th>
+                    <th>Breakdown Status Total</th>
                   </tr>
                 </thead>
                 <tbody id="selisihTableBody">
@@ -645,7 +655,7 @@
 </div>
 
 <script>
-// Database Kode Motor Honda
+// Database Kode Motor Honda Resmi (Acuan Catalog Honda Cengkareng)
 const HONDA_MOTOR_CODES = {
   'K1A': 'BeAT eSP / Street (2020-2024)',
   'K1AL': 'BeAT Street eSP (2024-2026)',
@@ -677,6 +687,8 @@ const HONDA_MOTOR_CODES = {
   'K0W': 'ADV 150 (2019-2022)'
 };
 
+const VALID_HONDA_CODES_SET = new Set(Object.keys(HONDA_MOTOR_CODES));
+
 function detectMotorModel(sku) {
   if (!sku || sku.length < 8) return '';
   const cleanSku = sku.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
@@ -686,7 +698,20 @@ function detectMotorModel(sku) {
   const mid3 = cleanSku.substring(5, 8);
   if (HONDA_MOTOR_CODES[mid3]) return `${mid3} (${HONDA_MOTOR_CODES[mid3]})`;
   
-  return mid4 || mid3;
+  return '';
+}
+
+function getStrictMotorCode(sku) {
+  if (!sku || sku.length < 8) return null;
+  const clean = sku.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  
+  const mid4 = clean.substring(5, 9);
+  if (VALID_HONDA_CODES_SET.has(mid4)) return mid4;
+  
+  const mid3 = clean.substring(5, 8);
+  if (VALID_HONDA_CODES_SET.has(mid3)) return mid3;
+  
+  return null;
 }
 
 function normalizeSkuLR(sku) {
@@ -1117,7 +1142,9 @@ function computeGroups(rows){
   const groupKeyMap = {};
 
   rows.forEach((r, i) => {
-    const motorCode = r.motorModel ? r.motorModel.split(' ')[0] : 'UNKNOWN';
+    const motorCode = getStrictMotorCode(r.sku);
+    if (!motorCode) return;
+
     const baseSku = normalizeSkuLR(r.sku10);
     const baseName = normalizeNameLR(r.nama);
 
@@ -1141,6 +1168,9 @@ function computeGroups(rows){
 
   const groupsMap = {};
   rows.forEach((r, i) => {
+    const motorCode = getStrictMotorCode(r.sku);
+    if (!motorCode) return;
+
     const root = find(i);
     if (!groupsMap[root]) groupsMap[root] = [];
     groupsMap[root].push(r);
@@ -1200,7 +1230,7 @@ function renderGroups(){
   const tbody = document.getElementById('groupsBody');
 
   if(entries.length === 0){
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">Tidak ada kelompok yang cocok.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Tidak ada kelompok SKU varian yang cocok.</div></td></tr>`;
   } else {
     tbody.innerHTML = entries.map(([key, members]) => {
       const isOpen = openGroups.has(key);
@@ -1210,20 +1240,17 @@ function renderGroups(){
       <tr class="datarow" data-group="${key}">
         <td><span class="sku-10">${key}</span></td>
         <td>${motorModel !== '—' ? `<span class="motor-badge">${motorModel}</span>` : '<span class="dim">—</span>'}</td>
-        <td class="dim">${members.length} SKU</td>
+        <td class="dim">${members.length} SKU Varian</td>
         <td class="prodname">${sampleName}</td>
-        <td class="dim">P${members[0].p}×L${members[0].l}×T${members[0].t}</td>
-        <td class="dim">${members[0].berat}g / ${members[0].volume}g</td>
-        <td><span class="badge fast">Varian Sesuai</span></td>
-        <td><span class="badge ${members.some(m=>m.incomplete)?'discontinue':'fast'}">${members.some(m=>m.incomplete)?'Perlu Lengkap':'Lengkap'}</span></td>
+        <td><span class="badge fast">Pasangan / Varian Valid</span></td>
         <td class="chevron">${isOpen ? '▲' : '▼'}</td>
       </tr>
       <tr class="detail-row ${isOpen ? 'open' : ''}">
-        <td colspan="9">${isOpen ? groupDetailHtml(members) : ''}</td>
+        <td colspan="6">${isOpen ? groupDetailHtml(members) : ''}</td>
       </tr>`;
     }).join('');
   }
-  document.getElementById('groupCountNote').textContent = `Menampilkan ${entries.length} kelompok (dari ${totalEntries} total grup)`;
+  document.getElementById('groupCountNote').textContent = `Menampilkan ${entries.length} kelompok varian (dari ${totalEntries} total grup)`;
   document.getElementById('kGroups').textContent = totalEntries.toLocaleString('id-ID');
 
   document.querySelectorAll('#groupsBody tr.datarow').forEach(tr => {
@@ -1347,7 +1374,7 @@ function initNav(){
   });
 }
 
-// Selisih Marketplace Logic
+// LOGIKA DIBERSIHKAN: REPORT SELISIH MARKETPLACE (SHOPEE, LAZADA, TIKTOK)
 const SELISIH_SHEET_ID = '1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs';
 const SELISIH_SOURCES_KEY = 'mp_selisih_sources_v1';
 const DEFAULT_SHOPEE_URL = 'https://docs.google.com/spreadsheets/d/1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs/edit?gid=502480312#gid=502480312';
@@ -1365,18 +1392,25 @@ async function fetchMarketplaceRows(gid, marketplaceName){
   const csvText = await res.text();
   const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
   const headers = parsed.meta.fields || [];
-  const kTanggal = findKey(headers, ['waktu pembuatan']) || findKey(headers, ['tanggal']);
+  const kTanggal = findKey(headers, ['waktu pembuatan']) || findKey(headers, ['tanggal']) || findKey(headers, ['minggu']);
   const kSelisih = findKey(headers, ['selisih']);
   const kStatus = findKey(headers, ['status']);
 
   return parsed.data.filter(r => r[kSelisih] !== undefined).map(r => {
-    const rawDate = kTanggal ? r[kTanggal] : '';
+    const rawDate = kTanggal ? String(r[kTanggal] || '').trim() : 'Minggu 1';
     const statusVal = kStatus ? String(r[kStatus]).trim().toLowerCase() : '';
-    const isApproved = statusVal.includes('approve') || statusVal.includes('selesai') || statusVal.includes('acc');
+    
+    let statusCode = 'pending';
+    if(statusVal.includes('approve') || statusVal.includes('acc') || statusVal.includes('selesai') || statusVal.includes('disetujui')) {
+      statusCode = 'approved';
+    } else if(statusVal.includes('reject') || statusVal.includes('tolak') || statusVal.includes('batal')) {
+      statusCode = 'rejected';
+    }
+
     return {
       marketplace: marketplaceName,
-      selisih: parseNum(r[r[kSelisih]]),
-      isApproved,
+      selisih: parseNum(r[kSelisih]),
+      statusCode,
       rawDate
     };
   });
@@ -1385,14 +1419,30 @@ async function fetchMarketplaceRows(gid, marketplaceName){
 function aggregateSelisih(allRows){
   const weeks = {};
   allRows.forEach(r => {
-    const key = 'Minggu Ke-1 (September 2026)';
-    if(!weeks[key]) weeks[key] = { key, shopee:0, lazada:0, tiktok:0, total:0, app:0, pend:0 };
+    const key = r.rawDate || 'Minggu Ke-1';
+    if(!weeks[key]) {
+      weeks[key] = { 
+        key, 
+        shopee: { val: 0, app: 0, pend: 0, rej: 0 },
+        lazada: { val: 0, app: 0, pend: 0, rej: 0 },
+        tiktok: { val: 0, app: 0, pend: 0, rej: 0 },
+        totalSelisih: 0,
+        totalApp: 0, totalPend: 0, totalRej: 0
+      };
+    }
     const w = weeks[key];
-    if(r.marketplace === 'Shopee') w.shopee += r.selisih;
-    if(r.marketplace === 'Lazada') w.lazada += r.selisih;
-    if(r.marketplace === 'TikTok') w.tiktok += r.selisih;
-    w.total += r.selisih;
-    if(r.isApproved) w.app++; else w.pend++;
+    const mpKey = r.marketplace.toLowerCase();
+    if(w[mpKey]) {
+      w[mpKey].val += r.selisih;
+      if(r.statusCode === 'approved') w[mpKey].app++;
+      else if(r.statusCode === 'rejected') w[mpKey].rej++;
+      else w[mpKey].pend++;
+    }
+
+    w.totalSelisih += r.selisih;
+    if(r.statusCode === 'approved') w.totalApp++;
+    else if(r.statusCode === 'rejected') w.totalRej++;
+    else w.totalPend++;
   });
   return Object.values(weeks);
 }
@@ -1407,16 +1457,71 @@ function renderSelisihChart(weeks){
     data: {
       labels: weeks.map(w => w.key),
       datasets: [
-        { label: 'Shopee', data: weeks.map(w => w.shopee), borderColor: '#ee4d2d' },
-        { label: 'Lazada', data: weeks.map(w => w.lazada), borderColor: '#0f146d' },
-        { label: 'TikTok', data: weeks.map(w => w.tiktok), borderColor: '#000000' },
-        { label: 'Total', data: weeks.map(w => w.total), borderColor: '#a80021', borderWidth:3 }
+        { label: 'Shopee', data: weeks.map(w => w.shopee.val), borderColor: '#ee4d2d', backgroundColor: '#ee4d2d' },
+        { label: 'Lazada', data: weeks.map(w => w.lazada.val), borderColor: '#0f146d', backgroundColor: '#0f146d' },
+        { label: 'TikTok', data: weeks.map(w => w.tiktok.val), borderColor: '#000000', backgroundColor: '#000000' },
+        { label: 'Total Selisih', data: weeks.map(w => w.totalSelisih), borderColor: '#a80021', borderWidth:3 }
       ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' } }
     }
   });
 }
 
+function renderSelisihTable(weeks) {
+  const tbody = document.getElementById('selisihTableBody');
+  if(!tbody) return;
+
+  if(weeks.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Tidak ada data selisih yang ditemukan.</div></td></tr>`;
+    return;
+  }
+
+  let grandTotal = 0, grandApp = 0, grandPend = 0, grandRej = 0;
+
+  tbody.innerHTML = weeks.map(w => {
+    grandTotal += w.totalSelisih;
+    grandApp += w.totalApp;
+    grandPend += w.totalPend;
+    grandRej += w.totalRej;
+
+    const renderMpCell = (mp) => `
+      <div><strong>Rp ${mp.val.toLocaleString('id-ID')}</strong></div>
+      <div class="status-cell-wrapper">
+        <span class="badge badge-approved">✓ Approved: ${mp.app}</span>
+        <span class="badge badge-pending">⏳ Pending: ${mp.pend}</span>
+        <span class="badge badge-rejected">✕ Rejected: ${mp.rej}</span>
+      </div>`;
+
+    return `
+      <tr>
+        <td><strong>${w.key}</strong></td>
+        <td>${renderMpCell(w.shopee)}</td>
+        <td>${renderMpCell(w.lazada)}</td>
+        <td>${renderMpCell(w.tiktok)}</td>
+        <td style="font-weight:800; color:var(--red);">Rp ${w.totalSelisih.toLocaleString('id-ID')}</td>
+        <td>
+          <div class="status-cell-wrapper">
+            <span class="badge badge-approved">✓ Approved: ${w.totalApp}</span>
+            <span class="badge badge-pending">⏳ Pending: ${w.totalPend}</span>
+            <span class="badge badge-rejected">✕ Rejected: ${w.totalRej}</span>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('skTotal').textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+  document.getElementById('skApproved').textContent = grandApp.toLocaleString('id-ID');
+  document.getElementById('skPending').textContent = grandPend.toLocaleString('id-ID');
+  document.getElementById('skRejected').textContent = grandRej.toLocaleString('id-ID');
+}
+
 async function loadSelisihData(){
+  const summaryEl = document.getElementById('selisihLoadSummary');
+  summaryEl.innerHTML = `<span>Memuat data marketplace...</span>`;
+  
   const sources = {
     Shopee: document.getElementById('srcShopee').value,
     Lazada: document.getElementById('srcLazada').value,
@@ -1430,10 +1535,15 @@ async function loadSelisihData(){
     if(gid) jobs.push(fetchMarketplaceRows(gid, mp));
   });
   
-  const results = await Promise.all(jobs);
-  const weeks = aggregateSelisih(results.flat());
-  renderSelisihChart(weeks);
-  document.getElementById('selisihLoadSummary').innerHTML = `<span class="ok">Data berhasil diperbarui.</span>`;
+  try {
+    const results = await Promise.all(jobs);
+    const weeks = aggregateSelisih(results.flat());
+    renderSelisihChart(weeks);
+    renderSelisihTable(weeks);
+    summaryEl.innerHTML = `<span class="ok">Data berhasil diperbarui. Total ${weeks.length} minggu berhasil dimuat.</span>`;
+  } catch (err) {
+    summaryEl.innerHTML = `<span class="miss">Gagal memuat data marketplace: ${err.message}</span>`;
+  }
 }
 
 function initSelisihPage(){
