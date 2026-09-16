@@ -65,7 +65,6 @@
     gap: 14px;
   }
   
-  /* Logo tanpa lingkaran merah + Ukuran diperbesar */
   .sidebar-brand-icon {
     width: 60px; 
     height: 60px;
@@ -228,11 +227,14 @@
   .badge.other{color:var(--faint);background:#f1f2f4;}
   .badge.src-import{color:var(--amber);background:var(--amber-tint);}
   .badge.src-sheets{color:var(--faint);background:#f1f2f4;}
-  
-  /* Status Marketplace Badges */
-  .badge-approved { background: var(--green-tint); color: var(--green); border: 1px solid #c3e6cb; }
-  .badge-pending { background: var(--amber-tint); color: var(--amber); border: 1px solid #ffeeba; }
-  .badge-rejected { background: var(--red-tint); color: var(--red); border: 1px solid #f5c6cb; }
+
+  /* Clean Status Text UI (No Busy Colors) */
+  .clean-status-box {
+    display: flex; flex-direction: column; gap: 3px; font-size: 12px; background: var(--paper); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--line);
+  }
+  .clean-status-item { display: flex; justify-content: space-between; gap: 8px; }
+  .clean-status-item .st-label { color: var(--muted); font-weight: 600; }
+  .clean-status-item .st-val { font-family: var(--mono); font-weight: 700; }
 
   .dim{color:var(--muted);font-family:var(--mono);font-size:12px;}
   .prodname{max-width:300px; font-weight:600;}
@@ -317,16 +319,22 @@
   .logout-btn{background:#fff;color:var(--muted);border:1.5px solid var(--line); width:100%; box-shadow:none;}
   .logout-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-tint);}
 
-  .selisih-source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:6px;}
+  /* Section Adjust & Filter Selisih Tanggal */
+  .selisih-source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;}
   .selisih-source-field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--ink);}
   .selisih-source-field input{
     width:100%;background:var(--paper);border:1px solid var(--line);color:var(--ink);
     font-family:var(--mono);font-size:12px;padding:10px 12px;border-radius:6px;
   }
-
-  .status-cell-wrapper {
-    display: flex; flex-direction: column; gap: 4px; font-size: 11.5px;
+  .filter-bar-selisih {
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; padding-top: 14px; border-top: 1px dashed var(--line);
   }
+  .filter-group { display: flex; flex-direction: column; gap: 5px; }
+  .filter-group label { font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+  .filter-group input[type="date"], .filter-group select {
+    padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--font); font-size: 12.5px; font-weight: 600; background: var(--paper);
+  }
+  .filter-group input[type="date"]:focus, .filter-group select:focus { outline: none; border-color: var(--red); background: #fff; }
 
   @media (max-width:1024px){
     .layout-container { flex-direction: column; }
@@ -336,6 +344,7 @@
     .import-grid{grid-template-columns:1fr;}
     .detail-grid{grid-template-columns:1fr;}
     .selisih-source-grid{grid-template-columns:1fr;}
+    .filter-bar-selisih{flex-direction: column; align-items: stretch;}
   }
 </style>
 </head>
@@ -542,8 +551,8 @@
         <div class="section">
           <div class="section-head">
             <div>
-              <h2>Sumber Data Tab Spreadsheet</h2>
-              <p>Tempel link tab Shopee, Lazada, dan TikTok dari "Shipment Report ALL MP"</p>
+              <h2>Sumber Data &amp; Filter Periode Tanggal</h2>
+              <p>Atur link spreadsheet dan filter rentang tanggal pengiriman di bawah ini</p>
             </div>
           </div>
           <div class="section-body">
@@ -561,16 +570,46 @@
                 <input type="text" id="srcTiktok" placeholder="Tempel link tab TikTok di sini...">
               </div>
             </div>
-            <div class="import-actions">
-              <button class="btn" id="loadSelisihBtn">Muat / Refresh Data</button>
+
+            <!-- FILTER BAR & ADJUST TANGGAL -->
+            <div class="filter-bar-selisih">
+              <div class="filter-group">
+                <label>Tanggal Mulai</label>
+                <input type="date" id="filterStartDate">
+              </div>
+              <div class="filter-group">
+                <label>Tanggal Selesai</label>
+                <input type="date" id="filterEndDate">
+              </div>
+              <div class="filter-group">
+                <label>Marketplace</label>
+                <select id="filterMpSelect">
+                  <option value="ALL">Semua Marketplace</option>
+                  <option value="Shopee">Shopee Only</option>
+                  <option value="Lazada">Lazada Only</option>
+                  <option value="TikTok">TikTok Only</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Status</label>
+                <select id="filterStatusSelect">
+                  <option value="ALL">Semua Status</option>
+                  <option value="approved">Approved</option>
+                  <option value="pending">Pending</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+              <button class="btn" id="loadSelisihBtn">Terapkan Filter / Refresh Data</button>
+              <button class="btn ghost small" id="resetSelisihFilterBtn">Reset Filter</button>
             </div>
+            
             <div class="import-summary" id="selisihLoadSummary"></div>
           </div>
         </div>
 
         <!-- KPI SELISIH STATISTIK NOMINAL (APPROVED / PENDING / REJECTED) -->
         <div class="kpis" id="selisihKpiRow" style="grid-template-columns:repeat(4,1fr);">
-          <div class="kpi"><div class="label">Total Selisih (3 Bulan)</div><div class="num" id="skTotal">–</div><div class="sub">akumulasi nominal selisih</div></div>
+          <div class="kpi"><div class="label">Total Selisih (Terfilter)</div><div class="num" id="skTotal">–</div><div class="sub">akumulasi nominal selisih</div></div>
           <div class="kpi k-fast"><div class="label">Nominal Approved</div><div class="num" id="skApprovedNominal">–</div><div class="sub" id="skApprovedSub">0 transaksi</div></div>
           <div class="kpi k-incomplete"><div class="label">Nominal Pending</div><div class="num" id="skPendingNominal">–</div><div class="sub" id="skPendingSub">0 transaksi</div></div>
           <div class="kpi k-disc"><div class="label">Nominal Rejected</div><div class="num" id="skRejectedNominal">–</div><div class="sub" id="skRejectedSub">0 transaksi</div></div>
@@ -579,17 +618,11 @@
         <div class="section">
           <div class="section-head">
             <div>
-              <h2>Tren Selisih per Minggu (ALL MP)</h2>
-              <p>Grafik akumulasi nilai selisih per minggu</p>
-            </div>
-            <div>
-              <select id="chartPeriodFilter" style="padding:6px 12px; border-radius:6px; border:1px solid var(--line); font-family:var(--font); font-size:12.5px; font-weight:700;">
-                <option value="3m">3 Bulan Terakhir (Maksimal)</option>
-                <option value="1m">1 Bulan Terakhir</option>
-              </select>
+              <h2>Tren Selisih Ongkir (Visual Grafik)</h2>
+              <p>Grafik akumulasi nilai selisih berdasarkan filter tanggal &amp; marketplace</p>
             </div>
           </div>
-          <div class="section-body">
+          <div class="section-body" style="padding: 24px;">
             <canvas id="selisihChart" height="90"></canvas>
           </div>
         </div>
@@ -597,8 +630,8 @@
         <div class="section">
           <div class="section-head">
             <div>
-              <h2>Rekap Selisih Ongkos Kirim per Marketplace</h2>
-              <p>Rincian nominal selisih dan breakdown status Approved / Pending / Rejected (Maksimal 3 Bulan Terakhir)</p>
+              <h2>Rekap Tabel Selisih Ongkos Kirim</h2>
+              <p>Tampilan ringkas tanpa warna mencolok yang membingungkan</p>
             </div>
           </div>
           <div class="section-body">
@@ -606,20 +639,20 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Minggu / Tanggal</th>
-                    <th>Shopee (Nominal / Status)</th>
-                    <th>Lazada (Nominal / Status)</th>
-                    <th>TikTok (Nominal / Status)</th>
+                    <th>Minggu / Periode Tanggal</th>
+                    <th>Shopee</th>
+                    <th>Lazada</th>
+                    <th>TikTok</th>
                     <th>Total Selisih Minggu Ini</th>
-                    <th>Breakdown Nominal Total</th>
+                    <th>Breakdown Status Total</th>
                   </tr>
                 </thead>
                 <tbody id="selisihTableBody">
-                  <tr><td colspan="6"><div class="loading-state">Belum ada data. Isi link tab di atas lalu klik "Muat / Refresh Data".</div></td></tr>
+                  <tr><td colspan="6"><div class="loading-state">Belum ada data. Isi link tab di atas lalu klik "Terapkan Filter / Refresh Data".</div></td></tr>
                 </tbody>
               </table>
             </div>
-            <div class="footer-note" id="selisihTableFooterNote">Menampilkan maksimal 12 minggu (3 bulan terakhir).</div>
+            <div class="footer-note" id="selisihTableFooterNote"></div>
           </div>
         </div>
 
@@ -1374,7 +1407,7 @@ function initNav(){
   });
 }
 
-// REPORT SELISIH ONGKOS KIRIM MARKETPLACE (SHOPEE, LAZADA, TIKTOK)
+// LOGIKA DIBERSIHKAN TOTAL: SELISIH ONGKOS KIRIM MARKETPLACE (SHOPEE, LAZADA, TIKTOK)
 const SELISIH_SHEET_ID = '1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs';
 const SELISIH_SOURCES_KEY = 'mp_selisih_sources_v1';
 const DEFAULT_SHOPEE_URL = 'https://docs.google.com/spreadsheets/d/1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs/edit?gid=502480312#gid=502480312';
@@ -1383,6 +1416,24 @@ function extractGid(input){
   if(!input) return null;
   const m = String(input).trim().match(/[?&#]gid=(\d+)/);
   return m ? m[1] : (/^\d+$/.test(input) ? input : null);
+}
+
+function parseStandardDate(str){
+  if(!str) return null;
+  const s = String(str).trim();
+  const d1 = new Date(s);
+  if(!isNaN(d1.getTime())) return d1;
+
+  // Handle dd/mm/yyyy format
+  const parts = s.split(/[\/\-\s]/);
+  if(parts.length >= 3){
+    const d = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const y = parseInt(parts[2], 10);
+    const d2 = new Date(y, m, d);
+    if(!isNaN(d2.getTime())) return d2;
+  }
+  return null;
 }
 
 async function fetchMarketplaceRows(gid, marketplaceName){
@@ -1397,7 +1448,8 @@ async function fetchMarketplaceRows(gid, marketplaceName){
   const kStatus = findKey(headers, ['status']);
 
   return parsed.data.filter(r => r[kSelisih] !== undefined).map(r => {
-    const rawDate = kTanggal ? String(r[kTanggal] || '').trim() : 'Minggu 1';
+    const rawDateStr = kTanggal ? String(r[kTanggal] || '').trim() : '';
+    const dateObj = parseStandardDate(rawDateStr);
     const statusVal = kStatus ? String(r[kStatus]).trim().toLowerCase() : '';
     
     let statusCode = 'pending';
@@ -1411,15 +1463,36 @@ async function fetchMarketplaceRows(gid, marketplaceName){
       marketplace: marketplaceName,
       selisih: parseNum(r[kSelisih]),
       statusCode,
-      rawDate
+      rawDateStr: rawDateStr || 'Minggu Ke-1',
+      dateObj
     };
   });
 }
 
-function aggregateSelisih(allRows){
+function filterAndAggregateSelisih(allRows){
+  const startVal = document.getElementById('filterStartDate').value;
+  const endVal = document.getElementById('filterEndDate').value;
+  const mpFilter = document.getElementById('filterMpSelect').value;
+  const statusFilter = document.getElementById('filterStatusSelect').value;
+
+  const startDate = startVal ? new Date(startVal) : null;
+  const endDate = endVal ? new Date(endVal) : null;
+  if(endDate) endDate.setHours(23, 59, 59, 999);
+
+  // Apply Global Filters
+  const filtered = allRows.filter(r => {
+    if(mpFilter !== 'ALL' && r.marketplace !== mpFilter) return false;
+    if(statusFilter !== 'ALL' && r.statusCode !== statusFilter) return false;
+    if(r.dateObj){
+      if(startDate && r.dateObj < startDate) return false;
+      if(endDate && r.dateObj > endDate) return false;
+    }
+    return true;
+  });
+
   const weeks = {};
-  allRows.forEach(r => {
-    const key = r.rawDate || 'Minggu Ke-1';
+  filtered.forEach(r => {
+    const key = r.rawDateStr;
     if(!weeks[key]) {
       weeks[key] = { 
         key, 
@@ -1435,37 +1508,18 @@ function aggregateSelisih(allRows){
     const mpKey = r.marketplace.toLowerCase();
     if(w[mpKey]) {
       w[mpKey].val += r.selisih;
-      if(r.statusCode === 'approved') {
-        w[mpKey].appVal += r.selisih;
-        w[mpKey].app++;
-      } else if(r.statusCode === 'rejected') {
-        w[mpKey].rejVal += r.selisih;
-        w[mpKey].rej++;
-      } else {
-        w[mpKey].pendVal += r.selisih;
-        w[mpKey].pend++;
-      }
+      if(r.statusCode === 'approved') { w[mpKey].appVal += r.selisih; w[mpKey].app++; }
+      else if(r.statusCode === 'rejected') { w[mpKey].rejVal += r.selisih; w[mpKey].rej++; }
+      else { w[mpKey].pendVal += r.selisih; w[mpKey].pend++; }
     }
 
     w.totalSelisih += r.selisih;
-    if(r.statusCode === 'approved') {
-      w.totalAppNominal += r.selisih;
-      w.totalAppCount++;
-    } else if(r.statusCode === 'rejected') {
-      w.totalRejNominal += r.selisih;
-      w.totalRejCount++;
-    } else {
-      w.totalPendNominal += r.selisih;
-      w.totalPendCount++;
-    }
+    if(r.statusCode === 'approved') { w.totalAppNominal += r.selisih; w.totalAppCount++; }
+    else if(r.statusCode === 'rejected') { w.totalRejNominal += r.selisih; w.totalRejCount++; }
+    else { w.totalPendNominal += r.selisih; w.totalPendCount++; }
   });
 
-  // Urutkan minggu dan batasi MAKSIMAL 3 BULAN (12 Minggu Terakhir)
-  let result = Object.values(weeks);
-  if(result.length > 12) {
-    result = result.slice(result.length - 12);
-  }
-  return result;
+  return Object.values(weeks);
 }
 
 let selisihChartInstance = null;
@@ -1473,30 +1527,51 @@ function renderSelisihChart(weeks){
   const ctx = document.getElementById('selisihChart');
   if(!ctx) return;
   if(selisihChartInstance) selisihChartInstance.destroy();
+
+  const gradientRed = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+  gradientRed.addColorStop(0, 'rgba(228, 0, 43, 0.25)');
+  gradientRed.addColorStop(1, 'rgba(228, 0, 43, 0.0)');
+
   selisihChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels: weeks.map(w => w.key),
       datasets: [
-        { label: 'Shopee', data: weeks.map(w => w.shopee.val), borderColor: '#ee4d2d', backgroundColor: '#ee4d2d' },
-        { label: 'Lazada', data: weeks.map(w => w.lazada.val), borderColor: '#0f146d', backgroundColor: '#0f146d' },
-        { label: 'TikTok', data: weeks.map(w => w.tiktok.val), borderColor: '#000000', backgroundColor: '#000000' },
-        { label: 'Total Selisih', data: weeks.map(w => w.totalSelisih), borderColor: '#e4002b', borderWidth:3 }
+        { label: 'Shopee', data: weeks.map(w => w.shopee.val), borderColor: '#ee4d2d', backgroundColor: '#ee4d2d', tension: 0.3 },
+        { label: 'Lazada', data: weeks.map(w => w.lazada.val), borderColor: '#0f146d', backgroundColor: '#0f146d', tension: 0.3 },
+        { label: 'TikTok', data: weeks.map(w => w.tiktok.val), borderColor: '#000000', backgroundColor: '#000000', tension: 0.3 },
+        { label: 'Total Selisih', data: weeks.map(w => w.totalSelisih), borderColor: '#e4002b', backgroundColor: gradientRed, borderWidth: 3, fill: true, tension: 0.3 }
       ]
     },
     options: {
       responsive: true,
-      plugins: { legend: { position: 'top' } }
+      plugins: { 
+        legend: { position: 'top', labels: { font: { family: 'Manrope', weight: '700' } } },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.dataset.label}: Rp ${context.raw.toLocaleString('id-ID')}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: function(value) { return 'Rp ' + value.toLocaleString('id-ID'); }
+          }
+        }
+      }
     }
   });
 }
 
-function renderSelisihTable(weeks) {
+function renderSelisihCleanTable(weeks) {
   const tbody = document.getElementById('selisihTableBody');
   if(!tbody) return;
 
   if(weeks.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Tidak ada data selisih yang ditemukan.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Tidak ada data selisih yang cocok dengan filter.</div></td></tr>`;
     return;
   }
 
@@ -1513,45 +1588,44 @@ function renderSelisihTable(weeks) {
     grandPendCount += w.totalPendCount;
     grandRejCount += w.totalRejCount;
 
-    const renderMpCell = (mp) => `
-      <div><strong>Rp ${mp.val.toLocaleString('id-ID')}</strong></div>
-      <div class="status-cell-wrapper">
-        <span class="badge badge-approved">✓ Approved: Rp ${mp.appVal.toLocaleString('id-ID')}</span>
-        <span class="badge badge-pending">⏳ Pending: Rp ${mp.pendVal.toLocaleString('id-ID')}</span>
-        <span class="badge badge-rejected">✕ Rejected: Rp ${mp.rejVal.toLocaleString('id-ID')}</span>
+    const renderCleanMpCell = (mp) => `
+      <div style="font-weight:700;">Rp ${mp.val.toLocaleString('id-ID')}</div>
+      <div class="clean-status-box" style="margin-top:4px;">
+        <div class="clean-status-item"><span class="st-label">Approved</span><span class="st-val">Rp ${mp.appVal.toLocaleString('id-ID')}</span></div>
+        <div class="clean-status-item"><span class="st-label">Pending</span><span class="st-val">Rp ${mp.pendVal.toLocaleString('id-ID')}</span></div>
+        <div class="clean-status-item"><span class="st-label">Rejected</span><span class="st-val">Rp ${mp.rejVal.toLocaleString('id-ID')}</span></div>
       </div>`;
 
     return `
       <tr>
         <td><strong>${w.key}</strong></td>
-        <td>${renderMpCell(w.shopee)}</td>
-        <td>${renderMpCell(w.lazada)}</td>
-        <td>${renderMpCell(w.tiktok)}</td>
-        <td style="font-weight:800; color:var(--red);">Rp ${w.totalSelisih.toLocaleString('id-ID')}</td>
+        <td>${renderCleanMpCell(w.shopee)}</td>
+        <td>${renderCleanMpCell(w.lazada)}</td>
+        <td>${renderCleanMpCell(w.tiktok)}</td>
+        <td style="font-weight:800; color:var(--red); font-size:14px;">Rp ${w.totalSelisih.toLocaleString('id-ID')}</td>
         <td>
-          <div class="status-cell-wrapper">
-            <span class="badge badge-approved">✓ Approved: Rp ${w.totalAppNominal.toLocaleString('id-ID')}</span>
-            <span class="badge badge-pending">⏳ Pending: Rp ${w.totalPendNominal.toLocaleString('id-ID')}</span>
-            <span class="badge badge-rejected">✕ Rejected: Rp ${w.totalRejNominal.toLocaleString('id-ID')}</span>
+          <div class="clean-status-box" style="background:#fff;">
+            <div class="clean-status-item"><span class="st-label" style="color:var(--green);">✓ Approved</span><span class="st-val">Rp ${w.totalAppNominal.toLocaleString('id-ID')}</span></div>
+            <div class="clean-status-item"><span class="st-label" style="color:var(--amber);">⏳ Pending</span><span class="st-val">Rp ${w.totalPendNominal.toLocaleString('id-ID')}</span></div>
+            <div class="clean-status-item"><span class="st-label" style="color:var(--red);">✕ Rejected</span><span class="st-val">Rp ${w.totalRejNominal.toLocaleString('id-ID')}</span></div>
           </div>
         </td>
       </tr>`;
   }).join('');
 
-  // Update KPI Summary dengan NOMINAL Rp
+  // Update KPI Summary
   document.getElementById('skTotal').textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
-  
   document.getElementById('skApprovedNominal').textContent = `Rp ${grandAppNominal.toLocaleString('id-ID')}`;
   document.getElementById('skApprovedSub').textContent = `${grandAppCount.toLocaleString('id-ID')} transaksi disetujui`;
-  
   document.getElementById('skPendingNominal').textContent = `Rp ${grandPendNominal.toLocaleString('id-ID')}`;
   document.getElementById('skPendingSub').textContent = `${grandPendCount.toLocaleString('id-ID')} transaksi pending`;
-
   document.getElementById('skRejectedNominal').textContent = `Rp ${grandRejNominal.toLocaleString('id-ID')}`;
   document.getElementById('skRejectedSub').textContent = `${grandRejCount.toLocaleString('id-ID')} transaksi ditolak`;
 
-  document.getElementById('selisihTableFooterNote').textContent = `Menampilkan ${weeks.length} minggu terakhir (Maksimal 3 bulan agar ringkas).`;
+  document.getElementById('selisihTableFooterNote').textContent = `Menampilkan ${weeks.length} baris minggu terfilter.`;
 }
+
+let rawSelisihData = [];
 
 async function loadSelisihData(){
   const summaryEl = document.getElementById('selisihLoadSummary');
@@ -1572,19 +1646,32 @@ async function loadSelisihData(){
   
   try {
     const results = await Promise.all(jobs);
-    const weeks = aggregateSelisih(results.flat());
-    renderSelisihChart(weeks);
-    renderSelisihTable(weeks);
-    summaryEl.innerHTML = `<span class="ok">Data berhasil diperbarui. Total ${weeks.length} minggu (3 bulan terakhir) berhasil dimuat.</span>`;
+    rawSelisihData = results.flat();
+    applyAndRenderSelisih();
+    summaryEl.innerHTML = `<span class="ok">Data berhasil diperbarui dan disaring.</span>`;
   } catch (err) {
     summaryEl.innerHTML = `<span class="miss">Gagal memuat data marketplace: ${err.message}</span>`;
   }
+}
+
+function applyAndRenderSelisih(){
+  const weeks = filterAndAggregateSelisih(rawSelisihData);
+  renderSelisihChart(weeks);
+  renderSelisihCleanTable(weeks);
 }
 
 function initSelisihPage(){
   const saved = safeGetLS(SELISIH_SOURCES_KEY, null);
   document.getElementById('srcShopee').value = (saved && saved.Shopee) ? saved.Shopee : DEFAULT_SHOPEE_URL;
   document.getElementById('loadSelisihBtn').addEventListener('click', loadSelisihData);
+  
+  document.getElementById('resetSelisihFilterBtn').addEventListener('click', () => {
+    document.getElementById('filterStartDate').value = '';
+    document.getElementById('filterEndDate').value = '';
+    document.getElementById('filterMpSelect').value = 'ALL';
+    document.getElementById('filterStatusSelect').value = 'ALL';
+    applyAndRenderSelisih();
+  });
 }
 </script>
 </body>
