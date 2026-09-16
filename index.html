@@ -157,7 +157,7 @@
     padding:16px 16px 14px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   }
   .kpi .label{font-size:12px;color:var(--muted);font-weight:700; text-transform: uppercase; letter-spacing: 0.03em;}
-  .kpi .num{font-size:26px;font-weight:800;margin-top:6px;letter-spacing:-0.02em;}
+  .kpi .num{font-size:22px;font-weight:800;margin-top:6px;letter-spacing:-0.02em;}
   .kpi .sub{font-size:11.5px;color:var(--faint);margin-top:4px;}
   .kpi.k-fast{border-left-color:var(--green);} .kpi.k-fast .num{color:var(--green);}
   .kpi.k-nonfast{border-left-color:var(--slate);} .kpi.k-nonfast .num{color:var(--slate);}
@@ -385,7 +385,7 @@
         </button>
         <button class="nav-btn" data-page="page-selisih">
           <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14I7 12l1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
-          Selisih Marketplace
+          Selisih Ongkos Kirim
         </button>
       </div>
 
@@ -530,12 +530,12 @@
         </div>
       </div>
 
-      <!-- PAGE 2: SELISIH MARKETPLACE -->
+      <!-- PAGE 2: SELISIH ONGKOS KIRIM MARKETPLACE -->
       <div id="page-selisih" class="page" style="display:none;">
         <div class="header-actions">
           <div>
-            <h1>Data Selisih Marketplace (Mingguan)</h1>
-            <p style="margin:2px 0 0; color:var(--muted); font-size:13px;">Monitoring Tren Selisih Pengiriman per Marketplace (Shopee, Lazada, TikTok)</p>
+            <h1>Selisih Ongkos Kirim Marketplace</h1>
+            <p style="margin:2px 0 0; color:var(--muted); font-size:13px;">Monitoring Tren &amp; Nominal Selisih Pengiriman per Marketplace (Shopee, Lazada, TikTok)</p>
           </div>
         </div>
 
@@ -568,12 +568,12 @@
           </div>
         </div>
 
-        <!-- KPI SELISIH STATISTIK (APPROVED / PENDING / REJECTED) -->
+        <!-- KPI SELISIH STATISTIK NOMINAL (APPROVED / PENDING / REJECTED) -->
         <div class="kpis" id="selisihKpiRow" style="grid-template-columns:repeat(4,1fr);">
-          <div class="kpi"><div class="label">Total Selisih (Seluruh Periode)</div><div class="num" id="skTotal">–</div><div class="sub">gabungan semua marketplace</div></div>
-          <div class="kpi k-fast"><div class="label">Total Approved</div><div class="num" id="skApproved">–</div><div class="sub">transaksi disetujui</div></div>
-          <div class="kpi k-incomplete"><div class="label">Total Pending</div><div class="num" id="skPending">–</div><div class="sub">menunggu konfirmasi</div></div>
-          <div class="kpi k-disc"><div class="label">Total Rejected</div><div class="num" id="skRejected">–</div><div class="sub">transaksi ditolak</div></div>
+          <div class="kpi"><div class="label">Total Selisih (3 Bulan)</div><div class="num" id="skTotal">–</div><div class="sub">akumulasi nominal selisih</div></div>
+          <div class="kpi k-fast"><div class="label">Nominal Approved</div><div class="num" id="skApprovedNominal">–</div><div class="sub" id="skApprovedSub">0 transaksi</div></div>
+          <div class="kpi k-incomplete"><div class="label">Nominal Pending</div><div class="num" id="skPendingNominal">–</div><div class="sub" id="skPendingSub">0 transaksi</div></div>
+          <div class="kpi k-disc"><div class="label">Nominal Rejected</div><div class="num" id="skRejectedNominal">–</div><div class="sub" id="skRejectedSub">0 transaksi</div></div>
         </div>
 
         <div class="section">
@@ -584,9 +584,8 @@
             </div>
             <div>
               <select id="chartPeriodFilter" style="padding:6px 12px; border-radius:6px; border:1px solid var(--line); font-family:var(--font); font-size:12.5px; font-weight:700;">
-                <option value="3m">3 Bulan Terakhir (Akumulasi)</option>
+                <option value="3m">3 Bulan Terakhir (Maksimal)</option>
                 <option value="1m">1 Bulan Terakhir</option>
-                <option value="all">Semua Minggu</option>
               </select>
             </div>
           </div>
@@ -598,8 +597,8 @@
         <div class="section">
           <div class="section-head">
             <div>
-              <h2>Rekap Tabel Selisih & Status Approval per MP</h2>
-              <p>Rincian nilai selisih dan breakdown status Approved / Pending / Rejected per Marketplace</p>
+              <h2>Rekap Selisih Ongkos Kirim per Marketplace</h2>
+              <p>Rincian nominal selisih dan breakdown status Approved / Pending / Rejected (Maksimal 3 Bulan Terakhir)</p>
             </div>
           </div>
           <div class="section-body">
@@ -608,11 +607,11 @@
                 <thead>
                   <tr>
                     <th>Minggu / Tanggal</th>
-                    <th>Shopee (Selisih / Status)</th>
-                    <th>Lazada (Selisih / Status)</th>
-                    <th>TikTok (Selisih / Status)</th>
+                    <th>Shopee (Nominal / Status)</th>
+                    <th>Lazada (Nominal / Status)</th>
+                    <th>TikTok (Nominal / Status)</th>
                     <th>Total Selisih Minggu Ini</th>
-                    <th>Breakdown Status Total</th>
+                    <th>Breakdown Nominal Total</th>
                   </tr>
                 </thead>
                 <tbody id="selisihTableBody">
@@ -620,6 +619,7 @@
                 </tbody>
               </table>
             </div>
+            <div class="footer-note" id="selisihTableFooterNote">Menampilkan maksimal 12 minggu (3 bulan terakhir).</div>
           </div>
         </div>
 
@@ -1374,7 +1374,7 @@ function initNav(){
   });
 }
 
-// LOGIKA DIBERSIHKAN: REPORT SELISIH MARKETPLACE (SHOPEE, LAZADA, TIKTOK)
+// REPORT SELISIH ONGKOS KIRIM MARKETPLACE (SHOPEE, LAZADA, TIKTOK)
 const SELISIH_SHEET_ID = '1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs';
 const SELISIH_SOURCES_KEY = 'mp_selisih_sources_v1';
 const DEFAULT_SHOPEE_URL = 'https://docs.google.com/spreadsheets/d/1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs/edit?gid=502480312#gid=502480312';
@@ -1423,28 +1423,49 @@ function aggregateSelisih(allRows){
     if(!weeks[key]) {
       weeks[key] = { 
         key, 
-        shopee: { val: 0, app: 0, pend: 0, rej: 0 },
-        lazada: { val: 0, app: 0, pend: 0, rej: 0 },
-        tiktok: { val: 0, app: 0, pend: 0, rej: 0 },
+        shopee: { val: 0, appVal: 0, pendVal: 0, rejVal: 0, app: 0, pend: 0, rej: 0 },
+        lazada: { val: 0, appVal: 0, pendVal: 0, rejVal: 0, app: 0, pend: 0, rej: 0 },
+        tiktok: { val: 0, appVal: 0, pendVal: 0, rejVal: 0, app: 0, pend: 0, rej: 0 },
         totalSelisih: 0,
-        totalApp: 0, totalPend: 0, totalRej: 0
+        totalAppNominal: 0, totalPendNominal: 0, totalRejNominal: 0,
+        totalAppCount: 0, totalPendCount: 0, totalRejCount: 0
       };
     }
     const w = weeks[key];
     const mpKey = r.marketplace.toLowerCase();
     if(w[mpKey]) {
       w[mpKey].val += r.selisih;
-      if(r.statusCode === 'approved') w[mpKey].app++;
-      else if(r.statusCode === 'rejected') w[mpKey].rej++;
-      else w[mpKey].pend++;
+      if(r.statusCode === 'approved') {
+        w[mpKey].appVal += r.selisih;
+        w[mpKey].app++;
+      } else if(r.statusCode === 'rejected') {
+        w[mpKey].rejVal += r.selisih;
+        w[mpKey].rej++;
+      } else {
+        w[mpKey].pendVal += r.selisih;
+        w[mpKey].pend++;
+      }
     }
 
     w.totalSelisih += r.selisih;
-    if(r.statusCode === 'approved') w.totalApp++;
-    else if(r.statusCode === 'rejected') w.totalRej++;
-    else w.totalPend++;
+    if(r.statusCode === 'approved') {
+      w.totalAppNominal += r.selisih;
+      w.totalAppCount++;
+    } else if(r.statusCode === 'rejected') {
+      w.totalRejNominal += r.selisih;
+      w.totalRejCount++;
+    } else {
+      w.totalPendNominal += r.selisih;
+      w.totalPendCount++;
+    }
   });
-  return Object.values(weeks);
+
+  // Urutkan minggu dan batasi MAKSIMAL 3 BULAN (12 Minggu Terakhir)
+  let result = Object.values(weeks);
+  if(result.length > 12) {
+    result = result.slice(result.length - 12);
+  }
+  return result;
 }
 
 let selisihChartInstance = null;
@@ -1460,7 +1481,7 @@ function renderSelisihChart(weeks){
         { label: 'Shopee', data: weeks.map(w => w.shopee.val), borderColor: '#ee4d2d', backgroundColor: '#ee4d2d' },
         { label: 'Lazada', data: weeks.map(w => w.lazada.val), borderColor: '#0f146d', backgroundColor: '#0f146d' },
         { label: 'TikTok', data: weeks.map(w => w.tiktok.val), borderColor: '#000000', backgroundColor: '#000000' },
-        { label: 'Total Selisih', data: weeks.map(w => w.totalSelisih), borderColor: '#a80021', borderWidth:3 }
+        { label: 'Total Selisih', data: weeks.map(w => w.totalSelisih), borderColor: '#e4002b', borderWidth:3 }
       ]
     },
     options: {
@@ -1479,20 +1500,25 @@ function renderSelisihTable(weeks) {
     return;
   }
 
-  let grandTotal = 0, grandApp = 0, grandPend = 0, grandRej = 0;
+  let grandTotal = 0, grandAppNominal = 0, grandPendNominal = 0, grandRejNominal = 0;
+  let grandAppCount = 0, grandPendCount = 0, grandRejCount = 0;
 
   tbody.innerHTML = weeks.map(w => {
     grandTotal += w.totalSelisih;
-    grandApp += w.totalApp;
-    grandPend += w.totalPend;
-    grandRej += w.totalRej;
+    grandAppNominal += w.totalAppNominal;
+    grandPendNominal += w.totalPendNominal;
+    grandRejNominal += w.totalRejNominal;
+
+    grandAppCount += w.totalAppCount;
+    grandPendCount += w.totalPendCount;
+    grandRejCount += w.totalRejCount;
 
     const renderMpCell = (mp) => `
       <div><strong>Rp ${mp.val.toLocaleString('id-ID')}</strong></div>
       <div class="status-cell-wrapper">
-        <span class="badge badge-approved">✓ Approved: ${mp.app}</span>
-        <span class="badge badge-pending">⏳ Pending: ${mp.pend}</span>
-        <span class="badge badge-rejected">✕ Rejected: ${mp.rej}</span>
+        <span class="badge badge-approved">✓ Approved: Rp ${mp.appVal.toLocaleString('id-ID')}</span>
+        <span class="badge badge-pending">⏳ Pending: Rp ${mp.pendVal.toLocaleString('id-ID')}</span>
+        <span class="badge badge-rejected">✕ Rejected: Rp ${mp.rejVal.toLocaleString('id-ID')}</span>
       </div>`;
 
     return `
@@ -1504,18 +1530,27 @@ function renderSelisihTable(weeks) {
         <td style="font-weight:800; color:var(--red);">Rp ${w.totalSelisih.toLocaleString('id-ID')}</td>
         <td>
           <div class="status-cell-wrapper">
-            <span class="badge badge-approved">✓ Approved: ${w.totalApp}</span>
-            <span class="badge badge-pending">⏳ Pending: ${w.totalPend}</span>
-            <span class="badge badge-rejected">✕ Rejected: ${w.totalRej}</span>
+            <span class="badge badge-approved">✓ Approved: Rp ${w.totalAppNominal.toLocaleString('id-ID')}</span>
+            <span class="badge badge-pending">⏳ Pending: Rp ${w.totalPendNominal.toLocaleString('id-ID')}</span>
+            <span class="badge badge-rejected">✕ Rejected: Rp ${w.totalRejNominal.toLocaleString('id-ID')}</span>
           </div>
         </td>
       </tr>`;
   }).join('');
 
+  // Update KPI Summary dengan NOMINAL Rp
   document.getElementById('skTotal').textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
-  document.getElementById('skApproved').textContent = grandApp.toLocaleString('id-ID');
-  document.getElementById('skPending').textContent = grandPend.toLocaleString('id-ID');
-  document.getElementById('skRejected').textContent = grandRej.toLocaleString('id-ID');
+  
+  document.getElementById('skApprovedNominal').textContent = `Rp ${grandAppNominal.toLocaleString('id-ID')}`;
+  document.getElementById('skApprovedSub').textContent = `${grandAppCount.toLocaleString('id-ID')} transaksi disetujui`;
+  
+  document.getElementById('skPendingNominal').textContent = `Rp ${grandPendNominal.toLocaleString('id-ID')}`;
+  document.getElementById('skPendingSub').textContent = `${grandPendCount.toLocaleString('id-ID')} transaksi pending`;
+
+  document.getElementById('skRejectedNominal').textContent = `Rp ${grandRejNominal.toLocaleString('id-ID')}`;
+  document.getElementById('skRejectedSub').textContent = `${grandRejCount.toLocaleString('id-ID')} transaksi ditolak`;
+
+  document.getElementById('selisihTableFooterNote').textContent = `Menampilkan ${weeks.length} minggu terakhir (Maksimal 3 bulan agar ringkas).`;
 }
 
 async function loadSelisihData(){
@@ -1540,7 +1575,7 @@ async function loadSelisihData(){
     const weeks = aggregateSelisih(results.flat());
     renderSelisihChart(weeks);
     renderSelisihTable(weeks);
-    summaryEl.innerHTML = `<span class="ok">Data berhasil diperbarui. Total ${weeks.length} minggu berhasil dimuat.</span>`;
+    summaryEl.innerHTML = `<span class="ok">Data berhasil diperbarui. Total ${weeks.length} minggu (3 bulan terakhir) berhasil dimuat.</span>`;
   } catch (err) {
     summaryEl.innerHTML = `<span class="miss">Gagal memuat data marketplace: ${err.message}</span>`;
   }
