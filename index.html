@@ -228,7 +228,7 @@
   .badge.src-import{color:var(--amber);background:var(--amber-tint);}
   .badge.src-sheets{color:var(--faint);background:#f1f2f4;}
 
-  /* Clean Status Text UI (No Busy Colors) */
+  /* Clean Status Text UI */
   .clean-status-box {
     display: flex; flex-direction: column; gap: 3px; font-size: 12px; background: var(--paper); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--line);
   }
@@ -336,6 +336,15 @@
   }
   .filter-group input[type="date"]:focus, .filter-group select:focus { outline: none; border-color: var(--red); background: #fff; }
 
+  /* Chart Type Switcher Pills */
+  .chart-type-pills {
+    display: inline-flex; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 4px;
+  }
+  .chart-pill {
+    padding: 6px 14px; border-radius: 6px; border: none; background: transparent; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s;
+  }
+  .chart-pill.active { background: #fff; color: var(--red); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
   @media (max-width:1024px){
     .layout-container { flex-direction: column; }
     aside.sidebar { width: 100%; height: auto; position: relative; }
@@ -378,7 +387,6 @@
     <aside class="sidebar">
       <div class="sidebar-brand">
         <div class="sidebar-brand-icon">
-          <!-- Logo tanpa lingkaran merah (Opsi 1: logo.jpg) -->
           <img src="logo.jpg" alt="Honda Cengkareng Logo">
         </div>
         <div class="sidebar-brand-text">
@@ -502,12 +510,12 @@
           </div>
         </div>
 
-        <!-- TABEL KELOMPOK SKU (RINGKAS TANPA PLT & MARKETPLACE) -->
+        <!-- TABEL KELOMPOK SKU -->
         <div class="section">
           <div class="section-head">
             <div>
               <h2>Kelompok SKU (Varian Warna / Kiri-Kanan)</h2>
-              <p>SKU yang memiliki Kode Motor Resmi Honda &amp; Karakter Varian Sama (Part Universal/Baut Otomatis di-Skip)</p>
+              <p>SKU yang memiliki Kode Motor Resmi Honda &amp; Karakter Varian Sama</p>
             </div>
           </div>
           <div class="section-body">
@@ -545,6 +553,9 @@
           <div>
             <h1>Selisih Ongkos Kirim Marketplace</h1>
             <p style="margin:2px 0 0; color:var(--muted); font-size:13px;">Monitoring Tren &amp; Nominal Selisih Pengiriman per Marketplace (Shopee, Lazada, TikTok)</p>
+          </div>
+          <div>
+            <button class="btn small ghost" id="exportSelisihExcelBtn">Export Rekap Selisih (Excel)</button>
           </div>
         </div>
 
@@ -607,7 +618,7 @@
           </div>
         </div>
 
-        <!-- KPI SELISIH STATISTIK NOMINAL (APPROVED / PENDING / REJECTED) -->
+        <!-- KPI SELISIH STATISTIK NOMINAL -->
         <div class="kpis" id="selisihKpiRow" style="grid-template-columns:repeat(4,1fr);">
           <div class="kpi"><div class="label">Total Selisih (Terfilter)</div><div class="num" id="skTotal">–</div><div class="sub">akumulasi nominal selisih</div></div>
           <div class="kpi k-fast"><div class="label">Nominal Approved</div><div class="num" id="skApprovedNominal">–</div><div class="sub" id="skApprovedSub">0 transaksi</div></div>
@@ -615,11 +626,16 @@
           <div class="kpi k-disc"><div class="label">Nominal Rejected</div><div class="num" id="skRejectedNominal">–</div><div class="sub" id="skRejectedSub">0 transaksi</div></div>
         </div>
 
+        <!-- VISUAL GRAFIK CHART DENGAN TOGGLE TYPE (HARIAN VS PERIODE) -->
         <div class="section">
           <div class="section-head">
             <div>
               <h2>Tren Selisih Ongkir (Visual Grafik)</h2>
-              <p>Grafik akumulasi nilai selisih berdasarkan filter tanggal &amp; marketplace</p>
+              <p>Visualisasi tren fluktuasi nominal selisih pengiriman</p>
+            </div>
+            <div class="chart-type-pills">
+              <button class="chart-pill active" id="btnChartPeriode">Per Periode (Mingguan)</button>
+              <button class="chart-pill" id="btnChartHarian">Harian (Daily)</button>
             </div>
           </div>
           <div class="section-body" style="padding: 24px;">
@@ -627,11 +643,12 @@
           </div>
         </div>
 
+        <!-- REKAPAN TABEL HANYA KHUSUS PER PERIODE -->
         <div class="section">
           <div class="section-head">
             <div>
-              <h2>Rekap Tabel Selisih Ongkos Kirim</h2>
-              <p>Tampilan ringkas tanpa warna mencolok yang membingungkan</p>
+              <h2>Rekap Selisih Ongkos Kirim (Per Periode)</h2>
+              <p>Ringkasan total selisih ongkir dan breakdown status per minggu/periode</p>
             </div>
           </div>
           <div class="section-body">
@@ -688,38 +705,26 @@
 </div>
 
 <script>
-// Database Kode Motor Honda Resmi (Acuan Catalog Honda Cengkareng)
-const HONDA_MOTOR_CODES = {
-  'K1A': 'BeAT eSP / Street (2020-2024)',
-  'K1AL': 'BeAT Street eSP (2024-2026)',
-  'K2FA': 'Scoopy eSP (2020-2026)',
-  'K2VB': 'Vario 125 eSP (2025-2026)',
-  'K60R': 'Vario 125 eSP (2018-2022)',
-  'K60': 'Vario 125 eSP (2015-2018)',
-  'K59': 'Vario 150 eSP (2015-2018)',
-  'K59A': 'Vario 150 eSP (2018-2022)',
-  'K03': 'Revo FI (2014-2026)',
-  'K41': 'Supra X 125 FI (2014-2026)',
-  'K56W': 'Supra GTR 150 (2019-2026)',
-  'K0G': 'Super Cub 125 (2018-2026)',
-  'K2E': 'CT125 Hunter Cub (2020-2026)',
-  'K47': 'Blade 125 FI (2014-2018)',
-  'K45A': 'CBR 150R (2014-2016)',
-  'K45N': 'CBR 150R (2018-2021)',
-  'K45R': 'CBR 150R (2021-2026)',
-  'K56': 'Sonic 150R / CB150R',
-  'K81': 'BeAT eSP (2016-2020)',
-  'K25': 'BeAT FI (2012-2014)',
-  'KVB': 'Vario 110 CW Karbu',
-  'KVY': 'BeAT Karbu (2008-2012)',
-  'KZL': 'Spacy FI / BeAT FI',
-  'K15': 'CB150R StreetFire',
-  'K97': 'PCX 150 Lokal (2018-2021)',
-  'K1Z': 'PCX 160 (2021-2026)',
-  'K2V': 'ADV 160 (2022-2026)',
-  'K0W': 'ADV 150 (2019-2022)'
-};
+// MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
+const APPS_SCRIPT_URL = 'PASTE_URL_APPS_SCRIPT_DI_SINI';
 
+// Database Kode Motor Honda Resmi
+const HONDA_MOTOR_CODES = {
+  'K1A': 'BeAT eSP / Street (2020-2024)', 'K1AL': 'BeAT Street eSP (2024-2026)',
+  'K2FA': 'Scoopy eSP (2020-2026)', 'K2VB': 'Vario 125 eSP (2025-2026)',
+  'K60R': 'Vario 125 eSP (2018-2022)', 'K60': 'Vario 125 eSP (2015-2018)',
+  'K59': 'Vario 150 eSP (2015-2018)', 'K59A': 'Vario 150 eSP (2018-2022)',
+  'K03': 'Revo FI (2014-2026)', 'K41': 'Supra X 125 FI (2014-2026)',
+  'K56W': 'Supra GTR 150 (2019-2026)', 'K0G': 'Super Cub 125 (2018-2026)',
+  'K2E': 'CT125 Hunter Cub (2020-2026)', 'K47': 'Blade 125 FI (2014-2018)',
+  'K45A': 'CBR 150R (2014-2016)', 'K45N': 'CBR 150R (2018-2021)',
+  'K45R': 'CBR 150R (2021-2026)', 'K56': 'Sonic 150R / CB150R',
+  'K81': 'BeAT eSP (2016-2020)', 'K25': 'BeAT FI (2012-2014)',
+  'KVB': 'Vario 110 CW Karbu', 'KVY': 'BeAT Karbu (2008-2012)',
+  'KZL': 'Spacy FI / BeAT FI', 'K15': 'CB150R StreetFire',
+  'K97': 'PCX 150 Lokal (2018-2021)', 'K1Z': 'PCX 160 (2021-2026)',
+  'K2V': 'ADV 160 (2022-2026)', 'K0W': 'ADV 150 (2019-2022)'
+};
 const VALID_HONDA_CODES_SET = new Set(Object.keys(HONDA_MOTOR_CODES));
 
 function detectMotorModel(sku) {
@@ -727,39 +732,30 @@ function detectMotorModel(sku) {
   const cleanSku = sku.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   const mid4 = cleanSku.substring(5, 9);
   if (HONDA_MOTOR_CODES[mid4]) return `${mid4} (${HONDA_MOTOR_CODES[mid4]})`;
-  
   const mid3 = cleanSku.substring(5, 8);
   if (HONDA_MOTOR_CODES[mid3]) return `${mid3} (${HONDA_MOTOR_CODES[mid3]})`;
-  
   return '';
 }
 
 function getStrictMotorCode(sku) {
   if (!sku || sku.length < 8) return null;
   const clean = sku.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-  
   const mid4 = clean.substring(5, 9);
   if (VALID_HONDA_CODES_SET.has(mid4)) return mid4;
-  
   const mid3 = clean.substring(5, 8);
   if (VALID_HONDA_CODES_SET.has(mid3)) return mid3;
-  
   return null;
 }
 
 function normalizeSkuLR(sku) {
   if (!sku) return '';
-  let clean = sku.trim().toUpperCase();
-  clean = clean.replace(/[-_\s]?[LR]$/i, '');
-  return clean;
+  return sku.trim().toUpperCase().replace(/[-_\s]?[LR]$/i, '');
 }
 
 function normalizeNameLR(name) {
   if (!name) return '';
   let norm = name.trim().toUpperCase().replace(/\s+/g, ' ');
-  const tokens = norm.split(' ');
-  const filtered = tokens.filter(t => !['L', 'R', 'LEFT', 'RIGHT', 'KIRI', 'KANAN'].includes(t));
-  return filtered.join(' ');
+  return norm.split(' ').filter(t => !['L', 'R', 'LEFT', 'RIGHT', 'KIRI', 'KANAN'].includes(t)).join(' ');
 }
 
 // Simple Login Gate
@@ -939,24 +935,18 @@ async function loadData(){
         const sku10 = (k10Awal && r[k10Awal]) ? String(r[k10Awal]).trim() : skuClean.toUpperCase().slice(0, 10);
         const motorModel = detectMotorModel(skuClean);
         return {
-          sku: skuClean,
-          skuNote,
-          sku10,
-          motorModel,
+          sku: skuClean, skuNote, sku10, motorModel,
           sumberData: kSumberData ? String(r[kSumberData] || '').trim() : '',
-          statusCat: cat,
-          statusRaw: (statusRaw || '').trim(),
+          statusCat: cat, statusRaw: (statusRaw || '').trim(),
           nama: kNama ? String(r[kNama] || '').trim() : '',
-          max: kMax ? parseNum(r[kMax]) : 0,
-          berat, volume, p, l, t,
+          max: kMax ? parseNum(r[kMax]) : 0, berat, volume, p, l, t,
           tglOps: kTglOps ? String(r[kTglOps] || '').trim() : '',
           updateWeb: kUpdateWeb ? String(r[kUpdateWeb] || '').trim() : '',
           updateShopee: kUpdateShopee ? String(r[kUpdateShopee] || '').trim() : '',
           updateLazada: kUpdateLazada ? String(r[kUpdateLazada] || '').trim() : '',
           updateTiktok: kUpdateTiktok ? String(r[kUpdateTiktok] || '').trim() : '',
           sheetDocLink: linksMap[skuClean.toUpperCase()] || (kLampiran ? normalizeUrl(r[kLampiran]) : ''),
-          incomplete,
-          source: 'sheets'
+          incomplete, source: 'sheets'
         };
       });
     rebuildRawRows();
@@ -1004,9 +994,7 @@ function getFilteredRows(){
 
 function mpStatusPill(label, dateVal){
   const done = dateVal && dateVal.trim();
-  return `<span class="mp-toggle ${done ? 'on' : ''}">
-    ${label}${done ? ` — ${dateVal}` : ' — Belum'}
-  </span>`;
+  return `<span class="mp-toggle ${done ? 'on' : ''}">${label}${done ? ` — ${dateVal}` : ' — Belum'}</span>`;
 }
 
 function detailHtml(r){
@@ -1162,40 +1150,24 @@ function updateDeleteSelectedBtn(){
 function computeGroups(rows){
   const n = rows.length;
   const parent = Array.from({length: n}, (_, i) => i);
-  
-  function find(x) { 
-    while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } 
-    return x; 
-  }
-  function union(a, b) { 
-    const ra = find(a), rb = find(b); 
-    if (ra !== rb) parent[ra] = rb; 
-  }
+  function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+  function union(a, b) { const ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; }
 
   const groupKeyMap = {};
-
   rows.forEach((r, i) => {
     const motorCode = getStrictMotorCode(r.sku);
     if (!motorCode) return;
-
     const baseSku = normalizeSkuLR(r.sku10);
     const baseName = normalizeNameLR(r.nama);
-
     const primaryGroupKey = `${motorCode}_${baseSku}`;
     const secondaryGroupKey = baseName ? `${motorCode}_NAME_${baseName}` : null;
 
-    if (groupKeyMap[primaryGroupKey] === undefined) {
-      groupKeyMap[primaryGroupKey] = i;
-    } else {
-      union(i, groupKeyMap[primaryGroupKey]);
-    }
+    if (groupKeyMap[primaryGroupKey] === undefined) groupKeyMap[primaryGroupKey] = i;
+    else union(i, groupKeyMap[primaryGroupKey]);
 
     if (secondaryGroupKey) {
-      if (groupKeyMap[secondaryGroupKey] === undefined) {
-        groupKeyMap[secondaryGroupKey] = i;
-      } else {
-        union(i, groupKeyMap[secondaryGroupKey]);
-      }
+      if (groupKeyMap[secondaryGroupKey] === undefined) groupKeyMap[secondaryGroupKey] = i;
+      else union(i, groupKeyMap[secondaryGroupKey]);
     }
   });
 
@@ -1203,12 +1175,10 @@ function computeGroups(rows){
   rows.forEach((r, i) => {
     const motorCode = getStrictMotorCode(r.sku);
     if (!motorCode) return;
-
     const root = find(i);
     if (!groupsMap[root]) groupsMap[root] = [];
     groupsMap[root].push(r);
   });
-
   return Object.values(groupsMap);
 }
 
@@ -1349,17 +1319,9 @@ document.getElementById('closeExportModal').addEventListener('click', () => {
 function triggerExcelExport(exportType) {
   exportModal.style.display = 'none';
   let targetRows = [];
-  if (exportType === 'filtered') {
-    targetRows = getFilteredRows();
-  } else if (exportType === 'selected') {
-    if (selectedForDelete.size === 0) {
-      alert('Belum ada data SKU yang dicentang di tabel.');
-      return;
-    }
-    targetRows = rawRows.filter(r => selectedForDelete.has(r.sku));
-  } else {
-    targetRows = rawRows;
-  }
+  if (exportType === 'filtered') targetRows = getFilteredRows();
+  else if (exportType === 'selected') targetRows = rawRows.filter(r => selectedForDelete.has(r.sku));
+  else targetRows = rawRows;
 
   const exportData = targetRows.map(r => ({
     '10 SKU Awal': r.sku10,
@@ -1407,10 +1369,12 @@ function initNav(){
   });
 }
 
-// LOGIKA DIBERSIHKAN TOTAL: SELISIH ONGKOS KIRIM MARKETPLACE (SHOPEE, LAZADA, TIKTOK)
+// SELISIH ONGKOS KIRIM MARKETPLACE
 const SELISIH_SHEET_ID = '1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs';
 const SELISIH_SOURCES_KEY = 'mp_selisih_sources_v1';
 const DEFAULT_SHOPEE_URL = 'https://docs.google.com/spreadsheets/d/1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs/edit?gid=502480312#gid=502480312';
+
+let currentChartType = 'periode'; // 'periode' atau 'harian'
 
 function extractGid(input){
   if(!input) return null;
@@ -1423,8 +1387,6 @@ function parseStandardDate(str){
   const s = String(str).trim();
   const d1 = new Date(s);
   if(!isNaN(d1.getTime())) return d1;
-
-  // Handle dd/mm/yyyy format
   const parts = s.split(/[\/\-\s]/);
   if(parts.length >= 3){
     const d = parseInt(parts[0], 10);
@@ -1469,7 +1431,7 @@ async function fetchMarketplaceRows(gid, marketplaceName){
   });
 }
 
-function filterAndAggregateSelisih(allRows){
+function filterSelisihRows(allRows){
   const startVal = document.getElementById('filterStartDate').value;
   const endVal = document.getElementById('filterEndDate').value;
   const mpFilter = document.getElementById('filterMpSelect').value;
@@ -1479,8 +1441,7 @@ function filterAndAggregateSelisih(allRows){
   const endDate = endVal ? new Date(endVal) : null;
   if(endDate) endDate.setHours(23, 59, 59, 999);
 
-  // Apply Global Filters
-  const filtered = allRows.filter(r => {
+  return allRows.filter(r => {
     if(mpFilter !== 'ALL' && r.marketplace !== mpFilter) return false;
     if(statusFilter !== 'ALL' && r.statusCode !== statusFilter) return false;
     if(r.dateObj){
@@ -1489,9 +1450,12 @@ function filterAndAggregateSelisih(allRows){
     }
     return true;
   });
+}
 
+// Agregasi Per Periode (Mingguan)
+function aggregatePeriode(filteredRows){
   const weeks = {};
-  filtered.forEach(r => {
+  filteredRows.forEach(r => {
     const key = r.rawDateStr;
     if(!weeks[key]) {
       weeks[key] = { 
@@ -1518,12 +1482,27 @@ function filterAndAggregateSelisih(allRows){
     else if(r.statusCode === 'rejected') { w.totalRejNominal += r.selisih; w.totalRejCount++; }
     else { w.totalPendNominal += r.selisih; w.totalPendCount++; }
   });
-
   return Object.values(weeks);
 }
 
+// Agregasi Harian (Daily)
+function aggregateHarian(filteredRows){
+  const days = {};
+  filteredRows.forEach(r => {
+    const key = r.dateObj ? r.dateObj.toISOString().slice(0, 10) : r.rawDateStr;
+    if(!days[key]) {
+      days[key] = { key, shopee: 0, lazada: 0, tiktok: 0, totalSelisih: 0 };
+    }
+    const d = days[key];
+    const mpKey = r.marketplace.toLowerCase();
+    if(d[mpKey] !== undefined) d[mpKey] += r.selisih;
+    d.totalSelisih += r.selisih;
+  });
+  return Object.values(days).sort((a,b) => a.key.localeCompare(b.key));
+}
+
 let selisihChartInstance = null;
-function renderSelisihChart(weeks){
+function renderSelisihChart(dataPoints, isDaily = false){
   const ctx = document.getElementById('selisihChart');
   if(!ctx) return;
   if(selisihChartInstance) selisihChartInstance.destroy();
@@ -1535,12 +1514,12 @@ function renderSelisihChart(weeks){
   selisihChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: weeks.map(w => w.key),
+      labels: dataPoints.map(d => d.key),
       datasets: [
-        { label: 'Shopee', data: weeks.map(w => w.shopee.val), borderColor: '#ee4d2d', backgroundColor: '#ee4d2d', tension: 0.3 },
-        { label: 'Lazada', data: weeks.map(w => w.lazada.val), borderColor: '#0f146d', backgroundColor: '#0f146d', tension: 0.3 },
-        { label: 'TikTok', data: weeks.map(w => w.tiktok.val), borderColor: '#000000', backgroundColor: '#000000', tension: 0.3 },
-        { label: 'Total Selisih', data: weeks.map(w => w.totalSelisih), borderColor: '#e4002b', backgroundColor: gradientRed, borderWidth: 3, fill: true, tension: 0.3 }
+        { label: 'Shopee', data: dataPoints.map(d => isDaily ? d.shopee : d.shopee.val), borderColor: '#ee4d2d', backgroundColor: '#ee4d2d', tension: 0.2 },
+        { label: 'Lazada', data: dataPoints.map(d => isDaily ? d.lazada : d.lazada.val), borderColor: '#0f146d', backgroundColor: '#0f146d', tension: 0.2 },
+        { label: 'TikTok', data: dataPoints.map(d => isDaily ? d.tiktok : d.tiktok.val), borderColor: '#000000', backgroundColor: '#000000', tension: 0.2 },
+        { label: 'Total Selisih', data: dataPoints.map(d => d.totalSelisih), borderColor: '#e4002b', backgroundColor: gradientRed, borderWidth: 3, fill: true, tension: 0.2 }
       ]
     },
     options: {
@@ -1549,18 +1528,12 @@ function renderSelisihChart(weeks){
         legend: { position: 'top', labels: { font: { family: 'Manrope', weight: '700' } } },
         tooltip: {
           callbacks: {
-            label: function(context) {
-              return `${context.dataset.label}: Rp ${context.raw.toLocaleString('id-ID')}`;
-            }
+            label: function(context) { return `${context.dataset.label}: Rp ${context.raw.toLocaleString('id-ID')}`; }
           }
         }
       },
       scales: {
-        y: {
-          ticks: {
-            callback: function(value) { return 'Rp ' + value.toLocaleString('id-ID'); }
-          }
-        }
+        y: { ticks: { callback: function(value) { return 'Rp ' + value.toLocaleString('id-ID'); } } }
       }
     }
   });
@@ -1613,7 +1586,6 @@ function renderSelisihCleanTable(weeks) {
       </tr>`;
   }).join('');
 
-  // Update KPI Summary
   document.getElementById('skTotal').textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
   document.getElementById('skApprovedNominal').textContent = `Rp ${grandAppNominal.toLocaleString('id-ID')}`;
   document.getElementById('skApprovedSub').textContent = `${grandAppCount.toLocaleString('id-ID')} transaksi disetujui`;
@@ -1622,7 +1594,7 @@ function renderSelisihCleanTable(weeks) {
   document.getElementById('skRejectedNominal').textContent = `Rp ${grandRejNominal.toLocaleString('id-ID')}`;
   document.getElementById('skRejectedSub').textContent = `${grandRejCount.toLocaleString('id-ID')} transaksi ditolak`;
 
-  document.getElementById('selisihTableFooterNote').textContent = `Menampilkan ${weeks.length} baris minggu terfilter.`;
+  document.getElementById('selisihTableFooterNote').textContent = `Menampilkan ${weeks.length} baris periode terfilter.`;
 }
 
 let rawSelisihData = [];
@@ -1655,16 +1627,71 @@ async function loadSelisihData(){
 }
 
 function applyAndRenderSelisih(){
-  const weeks = filterAndAggregateSelisih(rawSelisihData);
-  renderSelisihChart(weeks);
+  const filteredRows = filterSelisihRows(rawSelisihData);
+  const weeks = aggregatePeriode(filteredRows);
+  
+  if (currentChartType === 'harian') {
+    const harianData = aggregateHarian(filteredRows);
+    renderSelisihChart(harianData, true);
+  } else {
+    renderSelisihChart(weeks, false);
+  }
+
+  // Tabel Rekap Bawah Selalu Menggunakan Tipe Per Periode
   renderSelisihCleanTable(weeks);
 }
+
+// EXPORT REKAP SELISIH KHUSUS KE EXCEL
+document.getElementById('exportSelisihExcelBtn').addEventListener('click', () => {
+  const filteredRows = filterSelisihRows(rawSelisihData);
+  const weeks = aggregatePeriode(filteredRows);
+  if (weeks.length === 0) {
+    alert('Tidak ada data selisih yang tersedia untuk diexport.');
+    return;
+  }
+  const exportData = weeks.map(w => ({
+    'Minggu / Tanggal': w.key,
+    'Shopee (Total Selisih)': w.shopee.val,
+    'Shopee (Approved)': w.shopee.appVal,
+    'Shopee (Pending)': w.shopee.pendVal,
+    'Shopee (Rejected)': w.shopee.rejVal,
+    'Lazada (Total Selisih)': w.lazada.val,
+    'Lazada (Approved)': w.lazada.appVal,
+    'Lazada (Pending)': w.lazada.pendVal,
+    'Lazada (Rejected)': w.lazada.rejVal,
+    'TikTok (Total Selisih)': w.tiktok.val,
+    'TikTok (Approved)': w.tiktok.appVal,
+    'TikTok (Pending)': w.tiktok.pendVal,
+    'TikTok (Rejected)': w.tiktok.rejVal,
+    'Total Selisih Minggu Ini': w.totalSelisih
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Rekap Selisih Ongkir');
+  XLSX.writeFile(wb, `rekap-selisih-ongkir-${new Date().toISOString().slice(0,10)}.xlsx`);
+});
 
 function initSelisihPage(){
   const saved = safeGetLS(SELISIH_SOURCES_KEY, null);
   document.getElementById('srcShopee').value = (saved && saved.Shopee) ? saved.Shopee : DEFAULT_SHOPEE_URL;
   document.getElementById('loadSelisihBtn').addEventListener('click', loadSelisihData);
   
+  // Handlers untuk Chart Toggle Pills
+  document.getElementById('btnChartPeriode').addEventListener('click', () => {
+    currentChartType = 'periode';
+    document.getElementById('btnChartPeriode').classList.add('active');
+    document.getElementById('btnChartHarian').classList.remove('active');
+    applyAndRenderSelisih();
+  });
+
+  document.getElementById('btnChartHarian').addEventListener('click', () => {
+    currentChartType = 'harian';
+    document.getElementById('btnChartHarian').classList.add('active');
+    document.getElementById('btnChartPeriode').classList.remove('active');
+    applyAndRenderSelisih();
+  });
+
   document.getElementById('resetSelisihFilterBtn').addEventListener('click', () => {
     document.getElementById('filterStartDate').value = '';
     document.getElementById('filterEndDate').value = '';
