@@ -200,6 +200,21 @@
   .chip:hover{border-color:var(--red);color:var(--red);}
   .chip.active{background:var(--ink);border-color:var(--ink);color:#fff;}
   .chip.warn.active{background:var(--amber);border-color:var(--amber); color:#fff;}
+  .chip.success.active{background:var(--green);border-color:var(--green); color:#fff;}
+
+  .pageSizeSelect {
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 12.5px;
+    font-weight: 700;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pageSizeSelect:focus { outline: none; border-color: var(--red); background: #fff; }
 
   .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;}
   table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px;}
@@ -505,7 +520,7 @@
         </div>
       </div>
 
-      <!-- PAGE 2: VARIATION MASTER (TANPA GRAFIK, KOLOM DIPERBARUI) -->
+      <!-- PAGE 2: VARIATION MASTER (DENGAN PENOMORAN NOMOR URUT & DROPDOWN JUMLAH DATA DI POJOK KANAN) -->
       <div id="page-variation" class="page" style="display:none;">
         <div class="header-actions">
           <div>
@@ -515,7 +530,7 @@
         </div>
 
         <!-- Variation Master KPIs -->
-        <div class="kpis" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+        <div class="kpis" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 24px;">
           <div class="kpi">
             <div class="label">Total Katalog Variasi</div>
             <div class="num" id="vmTotalCatalogs" style="color:var(--violet);">–</div>
@@ -525,16 +540,6 @@
             <div class="label">Total SKU Induk Varian</div>
             <div class="num" id="vmTotalVarSKUs">–</div>
             <div class="sub">pilihan variasi aktif</div>
-          </div>
-          <div class="kpi k-nonfast">
-            <div class="label">Rata-Rata Varian / Katalog</div>
-            <div class="num" id="vmAvgVariants">–</div>
-            <div class="sub">opsi variasi per produk</div>
-          </div>
-          <div class="kpi k-incomplete">
-            <div class="label">Katalog Terbesar</div>
-            <div class="num" id="vmMaxCatalogCode">–</div>
-            <div class="sub" id="vmMaxCatalogLabel">0 SKU Varian</div>
           </div>
         </div>
 
@@ -549,12 +554,30 @@
           <div class="section-body">
             <div class="controls">
               <input type="text" class="search-box" id="varSearchBox" placeholder="Cari Kode Produk, Nama Produk Katalog, atau SKU Induk Varian...">
+              <!-- Filter Chips untuk Status Kelengkapan -->
+              <div class="chip active" id="varFilterAll" data-completeness="ALL">Semua</div>
+              <div class="chip success" id="varFilterComplete" data-completeness="COMPLETE">✓ Sudah Lengkap</div>
+              <div class="chip warn" id="varFilterIncomplete" data-completeness="INCOMPLETE">⚠️ Belum Lengkap</div>
               <button class="btn small ghost" id="resetVarSearchBtn">Reset</button>
+
+              <!-- DROPDOWN FILTER JUMLAH DATA DI POJOK KANAN (DEFAULT 20) -->
+              <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--muted);">Tampilkan:</span>
+                <select id="varPageSizeSelect" class="pageSizeSelect">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="ALL">Semua</option>
+                </select>
+              </div>
             </div>
+
             <div class="table-scroll">
               <table>
                 <thead>
                   <tr>
+                    <th style="width: 45px; text-align: center;">No.</th>
                     <th>Kode Produk Katalog</th>
                     <th>Nama Produk Katalog Shopee</th>
                     <th>Jumlah SKU Varian</th>
@@ -564,7 +587,7 @@
                   </tr>
                 </thead>
                 <tbody id="varTableBody">
-                  <tr><td colspan="6"><div class="loading-state">Memuat data Katalog Variasi…</div></td></tr>
+                  <tr><td colspan="7"><div class="loading-state">Memuat data Katalog Variasi…</div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -789,8 +812,13 @@ let openDetail = new Set();
 let selectedForDelete = new Set();
 let openVarCatalogs = new Set();
 let varSearchQuery = '';
+let varCompletenessFilter = 'ALL'; 
 let currentPage = 1;
 const PAGE_SIZE = 50;
+
+// Halaman dan Ukuran Halaman untuk Variation Master (Default 20)
+let currentVarPage = 1;
+let varPageSize = 20;
 
 function safeGetLS(key, fallback){
   try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
@@ -946,7 +974,7 @@ async function loadVariationMasterData(){
     renderVariationMasterPage();
   }catch(err){
     document.getElementById('varTableBody').innerHTML =
-      `<tr><td colspan="6"><div class="error-state">Gagal menarik data Variation Master: ${err.message}.</div></td></tr>`;
+      `<tr><td colspan="7"><div class="error-state">Gagal menarik data Variation Master: ${err.message}.</div></td></tr>`;
   }
 }
 
@@ -1096,25 +1124,13 @@ function renderVariationMasterPage() {
 
   const totalCatalogs = variationCatalogs.length;
   let totalSKUs = 0;
-  let maxSKUCount = 0;
-  let maxCode = '—';
 
   variationCatalogs.forEach(cat => {
-    const len = cat.items.length;
-    totalSKUs += len;
-    if(len > maxSKUCount) {
-      maxSKUCount = len;
-      maxCode = cat.code;
-    }
+    totalSKUs += cat.items.length;
   });
-
-  const avgVariants = totalCatalogs > 0 ? (totalSKUs / totalCatalogs).toFixed(1) : '0';
 
   document.getElementById('vmTotalCatalogs').textContent = totalCatalogs.toLocaleString('id-ID');
   document.getElementById('vmTotalVarSKUs').textContent = totalSKUs.toLocaleString('id-ID');
-  document.getElementById('vmAvgVariants').textContent = `${avgVariants} SKU`;
-  document.getElementById('vmMaxCatalogCode').textContent = maxCode;
-  document.getElementById('vmMaxCatalogLabel').textContent = `${maxSKUCount} SKU Varian`;
 
   renderVariationTable();
 }
@@ -1127,6 +1143,7 @@ function varDetailHtml(items) {
         <table style="background:#fff; min-width:100%;">
           <thead>
             <tr>
+              <th style="width: 40px; text-align: center;">No.</th>
               <th>SKU Induk Varian</th>
               <th>Nama Varian Produk</th>
               <th>Berat (g)</th>
@@ -1136,8 +1153,9 @@ function varDetailHtml(items) {
             </tr>
           </thead>
           <tbody>
-            ${items.map(m => `
+            ${items.map((m, idx) => `
               <tr>
+                <td style="text-align: center; color: var(--muted); font-size: 11.5px; font-weight: 700;">${idx + 1}</td>
                 <td class="sku">${m.sku}</td>
                 <td class="prodname">${m.nama}</td>
                 <td class="dim">${m.berat ? m.berat.toLocaleString('id-ID') : '—'}</td>
@@ -1151,11 +1169,10 @@ function varDetailHtml(items) {
     </div>`;
 }
 
-let currentVarPage = 1;
-const VAR_PAGE_SIZE = 50;
-
 function renderVariationTable() {
   let filtered = variationCatalogs;
+
+  // Filter berdasarkan Kata Kunci Search
   if(varSearchQuery) {
     const q = varSearchQuery.toLowerCase();
     filtered = filtered.filter(c => 
@@ -1165,30 +1182,43 @@ function renderVariationTable() {
     );
   }
 
+  // Filter berdasarkan Status Kelengkapan
+  if(varCompletenessFilter === 'COMPLETE') {
+    filtered = filtered.filter(c => c.items.every(m => m.berat > 0 && m.volume > 0 && m.p > 0 && m.l > 0 && m.t > 0));
+  } else if(varCompletenessFilter === 'INCOMPLETE') {
+    filtered = filtered.filter(c => c.items.some(m => m.berat === 0 || m.volume === 0 || m.p === 0 || m.l === 0 || m.t === 0));
+  }
+
   const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / VAR_PAGE_SIZE));
+  
+  // Hitung Paginasi sesuai Page Size yang dipilih
+  const effectivePageSize = varPageSize === 'ALL' ? total : parseInt(varPageSize, 10);
+  const totalPages = Math.max(1, Math.ceil(total / (effectivePageSize || 1)));
+  
   if(currentVarPage > totalPages) currentVarPage = totalPages;
   if(currentVarPage < 1) currentVarPage = 1;
 
-  const startIdx = (currentVarPage - 1) * VAR_PAGE_SIZE;
-  const pageItems = filtered.slice(startIdx, startIdx + VAR_PAGE_SIZE);
+  const startIdx = (currentVarPage - 1) * effectivePageSize;
+  const pageItems = varPageSize === 'ALL' ? filtered : filtered.slice(startIdx, startIdx + effectivePageSize);
   const tbody = document.getElementById('varTableBody');
 
   if(pageItems.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Tidak ada katalog variasi yang cocok dengan pencarian.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">Tidak ada katalog variasi yang cocok dengan pencarian / filter.</div></td></tr>`;
   } else {
     tbody.innerHTML = pageItems.map((cat, idx) => {
+      const rowNum = startIdx + idx + 1; // Nomor Urut Otomatis
       const key = `${cat.code}_${idx}`;
       const isOpen = openVarCatalogs.has(key);
       
       // Evaluasi Kelengkapan Dimensi pada Setiap Varian di Katalog Ini
       const isComplete = cat.items.every(m => m.berat > 0 && m.volume > 0 && m.p > 0 && m.l > 0 && m.t > 0);
       const completenessBadge = isComplete 
-        ? `<span class="badge fast">✓ Lengkap</span>` 
+        ? `<span class="badge fast">✓ Sudah Lengkap</span>` 
         : `<span class="badge warn">⚠️ Belum Lengkap</span>`;
 
       return `
         <tr class="datarow" data-varkey="${key}">
+          <td style="text-align: center; color: var(--muted); font-weight: 700; font-size: 12px;">${rowNum}</td>
           <td><span class="code-badge">${cat.code}</span></td>
           <td class="prodname">${cat.catalogName}</td>
           <td class="dim" style="font-weight:700;">${cat.items.length} SKU Varian</td>
@@ -1197,12 +1227,17 @@ function renderVariationTable() {
           <td class="chevron">${isOpen ? '▲' : '▼'}</td>
         </tr>
         <tr class="detail-row ${isOpen ? 'open' : ''}">
-          <td colspan="6">${isOpen ? varDetailHtml(cat.items) : ''}</td>
+          <td colspan="7">${isOpen ? varDetailHtml(cat.items) : ''}</td>
         </tr>`;
     }).join('');
   }
 
-  document.getElementById('varCountNote').textContent = `Menampilkan ${pageItems.length} katalog (dari ${total} total katalog variasi Shopee)`;
+  const displayStart = total === 0 ? 0 : startIdx + 1;
+  const displayEnd = varPageSize === 'ALL' ? total : Math.min(startIdx + effectivePageSize, total);
+  
+  document.getElementById('varCountNote').textContent = `Menampilkan ${displayStart}–${displayEnd} katalog (dari ${total} total katalog terfilter)`;
+
+  renderVarPaginationControls(totalPages);
 
   document.querySelectorAll('#varTableBody tr.datarow').forEach(tr => {
     tr.addEventListener('click', () => {
@@ -1213,14 +1248,58 @@ function renderVariationTable() {
   });
 }
 
+function renderVarPaginationControls(totalPages) {
+  const container = document.getElementById('varPaginationControls');
+  if(!container) return;
+  if(totalPages <= 1 || varPageSize === 'ALL') {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = `
+    <button id="varPagePrevBtn" ${currentVarPage === 1 ? 'disabled' : ''}>&larr; Sebelumnya</button>
+    <span class="page-info">Halaman ${currentVarPage} dari ${totalPages}</span>
+    <button id="varPageNextBtn" ${currentVarPage === totalPages ? 'disabled' : ''}>Selanjutnya &rarr;</button>
+  `;
+  
+  const prevBtn = document.getElementById('varPagePrevBtn');
+  const nextBtn = document.getElementById('varPageNextBtn');
+  
+  if(prevBtn) prevBtn.addEventListener('click', () => { currentVarPage--; renderVariationTable(); });
+  if(nextBtn) nextBtn.addEventListener('click', () => { currentVarPage++; renderVariationTable(); });
+}
+
+// Event Listener Dropdown Page Size
+document.getElementById('varPageSizeSelect').addEventListener('change', (e) => {
+  varPageSize = e.target.value;
+  currentVarPage = 1;
+  renderVariationTable();
+});
+
 document.getElementById('varSearchBox').addEventListener('input', (e) => {
   varSearchQuery = e.target.value;
   currentVarPage = 1;
   renderVariationTable();
 });
+
+// Event Handler untuk Filter Chip Kelengkapan Variation Master
+document.querySelectorAll('.chip[data-completeness]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip[data-completeness]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    varCompletenessFilter = chip.dataset.completeness;
+    currentVarPage = 1;
+    renderVariationTable();
+  });
+});
+
 document.getElementById('resetVarSearchBtn').addEventListener('click', () => {
   document.getElementById('varSearchBox').value = '';
   varSearchQuery = '';
+  varCompletenessFilter = 'ALL';
+  varPageSize = 20;
+  document.getElementById('varPageSizeSelect').value = '20';
+  document.querySelectorAll('.chip[data-completeness]').forEach(c => c.classList.remove('active'));
+  document.getElementById('varFilterAll').classList.add('active');
   currentVarPage = 1;
   renderVariationTable();
 });
@@ -1363,7 +1442,7 @@ async function fetchMarketplaceRows(gid, marketplaceName){
 
     return {
       marketplace: marketplaceName,
-      selisih: parseNum(r[kSelisih]),
+      selisih: parseNum(r[r[kSelisih] !== undefined ? kSelisih : '']),
       statusCode,
       rawDateStr: rawDateStr || 'Minggu Ke-1',
       dateObj
