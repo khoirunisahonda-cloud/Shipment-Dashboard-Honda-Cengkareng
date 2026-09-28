@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
   :root{
     --white:#ffffff;
@@ -228,6 +227,7 @@
   .badge.other{color:var(--faint);background:#f1f2f4;}
   .badge.src-import{color:var(--amber);background:var(--amber-tint);}
   .badge.src-sheets{color:var(--faint);background:#f1f2f4;}
+  .badge.warn{color:var(--amber);background:var(--amber-tint);}
 
   .clean-status-box {
     display: flex; flex-direction: column; gap: 3px; font-size: 12px; background: var(--paper); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--line);
@@ -334,14 +334,6 @@
   }
   .filter-group input[type="date"]:focus, .filter-group select:focus { outline: none; border-color: var(--red); background: #fff; }
 
-  .chart-type-pills {
-    display: inline-flex; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 4px;
-  }
-  .chart-pill {
-    padding: 6px 14px; border-radius: 6px; border: none; background: transparent; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s;
-  }
-  .chart-pill.active { background: #fff; color: var(--red); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-
   @media (max-width:1024px){
     .layout-container { flex-direction: column; }
     aside.sidebar { width: 100%; height: auto; position: relative; }
@@ -380,7 +372,7 @@
 <div id="appRoot">
   <div class="layout-container">
     
-    <!-- Sidebar Kiri Modern dengan NAMA MENU BARU & IKON BARU -->
+    <!-- Sidebar Kiri Modern -->
     <aside class="sidebar">
       <div class="sidebar-brand">
         <div class="sidebar-brand-icon">
@@ -513,7 +505,7 @@
         </div>
       </div>
 
-      <!-- PAGE 2: VARIATION MASTER (RINGKAS & UKURAN GRAFIK DIKECILKAN) -->
+      <!-- PAGE 2: VARIATION MASTER (TANPA GRAFIK, KOLOM DIPERBARUI) -->
       <div id="page-variation" class="page" style="display:none;">
         <div class="header-actions">
           <div>
@@ -546,34 +538,12 @@
           </div>
         </div>
 
-        <!-- Variation Master Graphics Charts (UKURAN HEIGTH DIKECILKAN JADI 120) -->
-        <div class="section">
-          <div class="section-head">
-            <div>
-              <h2>Visualisasi Katalog &amp; Distribusi Variasi</h2>
-              <p>Analisis jumlah varian terbanyak per katalog dan proporsi kategori produk</p>
-            </div>
-          </div>
-          <div class="section-body">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-              <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 14px;">
-                <h4 style="margin: 0 0 10px; font-size: 12.5px; font-weight: 800; color: var(--ink);">Top 10 Katalog Shopee dengan Varian Terbanyak</h4>
-                <canvas id="vmTopCatalogsChart" height="120"></canvas>
-              </div>
-              <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 14px;">
-                <h4 style="margin: 0 0 10px; font-size: 12.5px; font-weight: 800; color: var(--ink);">Distribusi Jumlah Varian per Katalog</h4>
-                <canvas id="vmVarDistributionChart" height="120"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- TABEL VARIATION MASTER -->
         <div class="section">
           <div class="section-head">
             <div>
               <h2>Tabel Katalog Variasi Shopee &amp; Dimensi PLT</h2>
-              <p>Menampilkan Kode Produk Katalog, Nama Produk Utama, serta Pilihan SKU Varian &amp; Ukuran PLT</p>
+              <p>Menampilkan Kode Produk Katalog, Nama Produk Utama, Jumlah Varian, serta Status Kelengkapan Dimensi</p>
             </div>
           </div>
           <div class="section-body">
@@ -588,7 +558,7 @@
                     <th>Kode Produk Katalog</th>
                     <th>Nama Produk Katalog Shopee</th>
                     <th>Jumlah SKU Varian</th>
-                    <th>Contoh Varian Utama</th>
+                    <th>Status Kelengkapan</th>
                     <th>Status Katalog</th>
                     <th></th>
                   </tr>
@@ -679,22 +649,6 @@
           <div class="kpi k-fast"><div class="label">Nominal Approved</div><div class="num" id="skApprovedNominal">–</div><div class="sub" id="skApprovedSub">0 transaksi</div></div>
           <div class="kpi k-incomplete"><div class="label">Nominal Pending</div><div class="num" id="skPendingNominal">–</div><div class="sub" id="skPendingSub">0 transaksi</div></div>
           <div class="kpi k-disc"><div class="label">Nominal Rejected</div><div class="num" id="skRejectedNominal">–</div><div class="sub" id="skRejectedSub">0 transaksi</div></div>
-        </div>
-
-        <div class="section">
-          <div class="section-head">
-            <div>
-              <h2>Tren Selisih Ongkir (Visual Grafik)</h2>
-              <p>Visualisasi tren fluktuasi nominal selisih pengiriman</p>
-            </div>
-            <div class="chart-type-pills">
-              <button class="chart-pill active" id="btnChartPeriode">Per Periode (Mingguan)</button>
-              <button class="chart-pill" id="btnChartHarian">Harian (Daily)</button>
-            </div>
-          </div>
-          <div class="section-body" style="padding: 24px;">
-            <canvas id="selisihChart" height="90"></canvas>
-          </div>
         </div>
 
         <div class="section">
@@ -1137,9 +1091,6 @@ function updateDeleteSelectedBtn(){
 }
 
 // LOGIK VARIATION MASTER
-let vmTopCatalogsChartInstance = null;
-let vmVarDistChartInstance = null;
-
 function renderVariationMasterPage() {
   if(!variationCatalogs) return;
 
@@ -1165,64 +1116,7 @@ function renderVariationMasterPage() {
   document.getElementById('vmMaxCatalogCode').textContent = maxCode;
   document.getElementById('vmMaxCatalogLabel').textContent = `${maxSKUCount} SKU Varian`;
 
-  renderVariationCharts();
   renderVariationTable();
-}
-
-function renderVariationCharts() {
-  const sorted = [...variationCatalogs].sort((a,b) => b.items.length - a.items.length);
-
-  const top10 = sorted.slice(0, 10);
-  const ctxTop = document.getElementById('vmTopCatalogsChart');
-  if(ctxTop) {
-    if(vmTopCatalogsChartInstance) vmTopCatalogsChartInstance.destroy();
-    vmTopCatalogsChartInstance = new Chart(ctxTop, {
-      type: 'bar',
-      data: {
-        labels: top10.map(c => c.code),
-        datasets: [{
-          label: 'Jumlah SKU Varian',
-          data: top10.map(c => c.items.length),
-          backgroundColor: '#6f42c1',
-          borderRadius: 4
-        }]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { x: { beginAtZero: true } }
-      }
-    });
-  }
-
-  let single = 0, smallGroup = 0, mediumGroup = 0, largeGroup = 0;
-  variationCatalogs.forEach(c => {
-    const len = c.items.length;
-    if(len === 1) single++;
-    else if(len <= 3) smallGroup++;
-    else if(len <= 7) mediumGroup++;
-    else largeGroup++;
-  });
-
-  const ctxDist = document.getElementById('vmVarDistributionChart');
-  if(ctxDist) {
-    if(vmVarDistChartInstance) vmVarDistChartInstance.destroy();
-    vmVarDistChartInstance = new Chart(ctxDist, {
-      type: 'doughnut',
-      data: {
-        labels: ['1 SKU Varian', '2 - 3 Varian', '4 - 7 Varian', '> 7 Varian'],
-        datasets: [{
-          data: [single, smallGroup, mediumGroup, largeGroup],
-          backgroundColor: ['#adb5bd', '#198754', '#d97706', '#e4002b']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'right', labels: { font: { family: 'Manrope', weight: '700' } } } }
-      }
-    });
-  }
 }
 
 function varDetailHtml(items) {
@@ -1286,13 +1180,19 @@ function renderVariationTable() {
     tbody.innerHTML = pageItems.map((cat, idx) => {
       const key = `${cat.code}_${idx}`;
       const isOpen = openVarCatalogs.has(key);
-      const firstSku = cat.items[0]?.sku || '—';
+      
+      // Evaluasi Kelengkapan Dimensi pada Setiap Varian di Katalog Ini
+      const isComplete = cat.items.every(m => m.berat > 0 && m.volume > 0 && m.p > 0 && m.l > 0 && m.t > 0);
+      const completenessBadge = isComplete 
+        ? `<span class="badge fast">✓ Lengkap</span>` 
+        : `<span class="badge warn">⚠️ Belum Lengkap</span>`;
+
       return `
         <tr class="datarow" data-varkey="${key}">
           <td><span class="code-badge">${cat.code}</span></td>
           <td class="prodname">${cat.catalogName}</td>
           <td class="dim" style="font-weight:700;">${cat.items.length} SKU Varian</td>
-          <td class="sku">${firstSku}</td>
+          <td>${completenessBadge}</td>
           <td><span class="badge fast">Katalog Aktif</span></td>
           <td class="chevron">${isOpen ? '▲' : '▼'}</td>
         </tr>
@@ -1416,8 +1316,6 @@ const SELISIH_SHEET_ID = '1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs';
 const SELISIH_SOURCES_KEY = 'mp_selisih_sources_v1';
 const DEFAULT_SHOPEE_URL = 'https://docs.google.com/spreadsheets/d/1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs/edit?gid=502480312#gid=502480312';
 
-let currentChartType = 'periode';
-
 function extractGid(input){
   if(!input) return null;
   const m = String(input).trim().match(/[?&#]gid=(\d+)/);
@@ -1526,59 +1424,6 @@ function aggregatePeriode(filteredRows){
   return Object.values(weeks);
 }
 
-function aggregateHarian(filteredRows){
-  const days = {};
-  filteredRows.forEach(r => {
-    const key = r.dateObj ? r.dateObj.toISOString().slice(0, 10) : r.rawDateStr;
-    if(!days[key]) {
-      days[key] = { key, shopee: 0, lazada: 0, tiktok: 0, totalSelisih: 0 };
-    }
-    const d = days[key];
-    const mpKey = r.marketplace.toLowerCase();
-    if(d[mpKey] !== undefined) d[mpKey] += r.selisih;
-    d.totalSelisih += r.selisih;
-  });
-  return Object.values(days).sort((a,b) => a.key.localeCompare(b.key));
-}
-
-let selisihChartInstance = null;
-function renderSelisihChart(dataPoints, isDaily = false){
-  const ctx = document.getElementById('selisihChart');
-  if(!ctx) return;
-  if(selisihChartInstance) selisihChartInstance.destroy();
-
-  const gradientRed = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
-  gradientRed.addColorStop(0, 'rgba(228, 0, 43, 0.25)');
-  gradientRed.addColorStop(1, 'rgba(228, 0, 43, 0.0)');
-
-  selisihChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: dataPoints.map(d => d.key),
-      datasets: [
-        { label: 'Shopee', data: dataPoints.map(d => isDaily ? d.shopee : d.shopee.val), borderColor: '#ee4d2d', backgroundColor: '#ee4d2d', tension: 0.2 },
-        { label: 'Lazada', data: dataPoints.map(d => isDaily ? d.lazada : d.lazada.val), borderColor: '#0f146d', backgroundColor: '#0f146d', tension: 0.2 },
-        { label: 'TikTok', data: dataPoints.map(d => isDaily ? d.tiktok : d.tiktok.val), borderColor: '#000000', backgroundColor: '#000000', tension: 0.2 },
-        { label: 'Total Selisih', data: dataPoints.map(d => d.totalSelisih), borderColor: '#e4002b', backgroundColor: gradientRed, borderWidth: 3, fill: true, tension: 0.2 }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { 
-        legend: { position: 'top', labels: { font: { family: 'Manrope', weight: '700' } } },
-        tooltip: {
-          callbacks: {
-            label: function(context) { return `${context.dataset.label}: Rp ${context.raw.toLocaleString('id-ID')}`; }
-          }
-        }
-      },
-      scales: {
-        y: { ticks: { callback: function(value) { return 'Rp ' + value.toLocaleString('id-ID'); } } }
-      }
-    }
-  });
-}
-
 function renderSelisihCleanTable(weeks) {
   const tbody = document.getElementById('selisihTableBody');
   if(!tbody) return;
@@ -1669,14 +1514,6 @@ async function loadSelisihData(){
 function applyAndRenderSelisih(){
   const filteredRows = filterSelisihRows(rawSelisihData);
   const weeks = aggregatePeriode(filteredRows);
-  
-  if (currentChartType === 'harian') {
-    const harianData = aggregateHarian(filteredRows);
-    renderSelisihChart(harianData, true);
-  } else {
-    renderSelisihChart(weeks, false);
-  }
-
   renderSelisihCleanTable(weeks);
 }
 
@@ -1714,20 +1551,6 @@ function initSelisihPage(){
   const saved = safeGetLS(SELISIH_SOURCES_KEY, null);
   document.getElementById('srcShopee').value = (saved && saved.Shopee) ? saved.Shopee : DEFAULT_SHOPEE_URL;
   document.getElementById('loadSelisihBtn').addEventListener('click', loadSelisihData);
-  
-  document.getElementById('btnChartPeriode').addEventListener('click', () => {
-    currentChartType = 'periode';
-    document.getElementById('btnChartPeriode').classList.add('active');
-    document.getElementById('btnChartHarian').classList.remove('active');
-    applyAndRenderSelisih();
-  });
-
-  document.getElementById('btnChartHarian').addEventListener('click', () => {
-    currentChartType = 'harian';
-    document.getElementById('btnChartHarian').classList.add('active');
-    document.getElementById('btnChartPeriode').classList.remove('active');
-    applyAndRenderSelisih();
-  });
 
   document.getElementById('resetSelisihFilterBtn').addEventListener('click', () => {
     document.getElementById('filterStartDate').value = '';
