@@ -43,7 +43,7 @@
     min-height: 100vh;
   }
 
-  /* ---- Sidebar Kiri Modern ---- */
+  /* Sidebar Kiri Modern */
   aside.sidebar {
     width: 270px;
     background: var(--white);
@@ -120,7 +120,7 @@
     background: #fff;
   }
 
-  /* ---- Main Content ---- */
+  /* Main Content */
   main.main-content {
     flex: 1;
     padding: 28px 36px 60px;
@@ -227,7 +227,6 @@
   .badge.src-import{color:var(--amber);background:var(--amber-tint);}
   .badge.src-sheets{color:var(--faint);background:#f1f2f4;}
 
-  /* Clean Status Text UI */
   .clean-status-box {
     display: flex; flex-direction: column; gap: 3px; font-size: 12px; background: var(--paper); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--line);
   }
@@ -317,7 +316,6 @@
   .logout-btn{background:#fff;color:var(--muted);border:1.5px solid var(--line); width:100%; box-shadow:none;}
   .logout-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-tint);}
 
-  /* Section Adjust & Filter Selisih Tanggal */
   .selisih-source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;}
   .selisih-source-field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--ink);}
   .selisih-source-field input{
@@ -334,7 +332,6 @@
   }
   .filter-group input[type="date"]:focus, .filter-group select:focus { outline: none; border-color: var(--red); background: #fff; }
 
-  /* Chart Type Switcher Pills */
   .chart-type-pills {
     display: inline-flex; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 4px;
   }
@@ -398,6 +395,10 @@
           <svg viewBox="0 0 24 24"><path d="M4 13h6c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1zm0 8h6c.55 0 1-.45 1-1v-4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1zm10 0h6c.55 0 1-.45 1-1v-8c0-.55-.45-1-1-1h-6c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1zm0-18v4c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1h-6c-.55 0-1 .45-1 1z"/></svg>
           SKU &amp; Master Part
         </button>
+        <button class="nav-btn" data-page="page-variation">
+          <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11zM12 22l5.5-9h-11z"/></svg>
+          Variation Master
+        </button>
         <button class="nav-btn" data-page="page-selisih">
           <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14I7 12l1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
           Selisih Ongkos Kirim
@@ -413,7 +414,7 @@
     <!-- Content Area (Kanan) -->
     <main class="main-content">
 
-      <!-- PAGE 1: MASTER PART -->
+      <!-- PAGE 1: MASTER PART (ASLI/UTUH) -->
       <div id="page-master" class="page">
         <div class="header-actions">
           <div>
@@ -506,18 +507,69 @@
             <div class="pagination" id="paginationControls"></div>
           </div>
         </div>
+      </div>
 
-        <!-- TABEL KELOMPOK SKU -->
+      <!-- PAGE 2: VARIATION MASTER (HALAMAN TERPISAH) -->
+      <div id="page-variation" class="page" style="display:none;">
+        <div class="header-actions">
+          <div>
+            <h1>Variation Master Dashboard</h1>
+            <p style="margin:2px 0 0; color:var(--muted); font-size:13px;">Analisis Kelompok Varian Warna, Pasangan Kiri-Kanan, dan Spesifikasi Dimensi PLT Detail</p>
+          </div>
+        </div>
+
+        <!-- Variation Master KPIs -->
+        <div class="kpis" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+          <div class="kpi">
+            <div class="label">Total Kelompok Varian</div>
+            <div class="num" id="vmTotalGroups" style="color:var(--violet);">–</div>
+            <div class="sub">kelompok terdeteksi</div>
+          </div>
+          <div class="kpi k-fast">
+            <div class="label">Rata-Rata Varian / Grup</div>
+            <div class="num" id="vmAvgVariants">–</div>
+            <div class="sub">SKU anak per kelompok</div>
+          </div>
+          <div class="kpi k-incomplete">
+            <div class="label">Grup Varian Terbesar</div>
+            <div class="num" id="vmMaxVariantCount">–</div>
+            <div class="sub" id="vmMaxVariantLabel">0 SKU</div>
+          </div>
+        </div>
+
+        <!-- Variation Master Graphics Charts -->
         <div class="section">
           <div class="section-head">
             <div>
-              <h2>Kelompok SKU (Varian Warna / Kiri-Kanan)</h2>
-              <p>SKU yang memiliki Kode Motor Resmi Honda &amp; Karakter Varian Sama</p>
+              <h2>Grafik Analisis Varian</h2>
+              <p>Distribusi status varian dan kelompok motor dengan varian terbanyak</p>
+            </div>
+          </div>
+          <div class="section-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px;">
+                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Distribusi Status Varian SKU</h4>
+                <canvas id="vmStatusChart" height="200"></canvas>
+              </div>
+              <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px;">
+                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Top 10 Kelompok Varian Terbanyak</h4>
+                <canvas id="vmTopGroupsChart" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABEL VARIATION MASTER DENGAN DATA PLT -->
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <h2>Tabel Kelompok Varian &amp; Spesifikasi PLT</h2>
+              <p>Daftar SKU Varian yang dilengkapi dengan Berat, Volume, dan Dimensi Panjang × Lebar × Tinggi</p>
             </div>
           </div>
           <div class="section-body">
             <div class="controls">
-              <input type="text" class="search-box" id="groupSearchBox" placeholder="Cari kode motor atau nama produk...">
+              <input type="text" class="search-box" id="groupSearchBox" placeholder="Cari kode motor atau nama produk varian...">
               <button class="btn small ghost" id="resetGroupSearchBtn">Reset</button>
               <div class="chip active" id="groupOnlyMultiToggle">Hanya grup ≥ 2 SKU</div>
             </div>
@@ -525,9 +577,9 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Grup / Kode Motor</th>
+                    <th>Kode Motor / Kelompok</th>
                     <th>Tipe Motor Honda</th>
-                    <th>Jumlah SKU Varian</th>
+                    <th>Jumlah Varian</th>
                     <th>Nama Produk (Acuan)</th>
                     <th>Status Varian</th>
                     <th></th>
@@ -542,51 +594,9 @@
             <div class="pagination" id="groupPaginationControls"></div>
           </div>
         </div>
-
-        <!-- VARIATION MASTER GRAPH MODULE -->
-        <div class="section" id="variationMasterSection">
-          <div class="section-head">
-            <div>
-              <h2>Variation Master</h2>
-              <p>Visualisasi Analisis Distribusi Varian SKU dan Kelompok Tipe Motor Terbesar</p>
-            </div>
-          </div>
-          <div class="section-body">
-            <!-- Variation Master KPIs -->
-            <div class="kpis" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
-              <div class="kpi">
-                <div class="label">Total Kelompok Varian</div>
-                <div class="num" id="vmTotalGroups" style="color:var(--violet);">–</div>
-                <div class="sub">kelompok terdeteksi</div>
-              </div>
-              <div class="kpi k-fast">
-                <div class="label">Rata-Rata Varian / Grup</div>
-                <div class="num" id="vmAvgVariants">–</div>
-                <div class="sub">SKU anak per kelompok</div>
-              </div>
-              <div class="kpi k-incomplete">
-                <div class="label">Grup Varian Terbesar</div>
-                <div class="num" id="vmMaxVariantCount">–</div>
-                <div class="sub" id="vmMaxVariantLabel">0 SKU</div>
-              </div>
-            </div>
-
-            <!-- Charts Layout Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-              <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px;">
-                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Distribusi Status Varian SKU</h4>
-                <canvas id="vmStatusChart" height="200"></canvas>
-              </div>
-              <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px;">
-                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Top 10 Kelompok Varian Terbanyak</h4>
-                <canvas id="vmTopGroupsChart" height="200"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <!-- PAGE 2: SELISIH ONGKOS KIRIM MARKETPLACE -->
+      <!-- PAGE 3: SELISIH ONGKOS KIRIM MARKETPLACE -->
       <div id="page-selisih" class="page" style="display:none;">
         <div class="header-actions">
           <div>
@@ -744,7 +754,6 @@
 </div>
 
 <script>
-// APPS SCRIPT URL
 const APPS_SCRIPT_URL = 'PASTE_URL_APPS_SCRIPT_DI_SINI';
 
 // Database Kode Motor Honda Resmi
@@ -1206,19 +1215,36 @@ function getFilteredGroups(){
   return entries;
 }
 
+// TABEL RINCIAN VARIATION MASTER DENGAN DATA PLT LENGKAP
 function groupDetailHtml(members){
   return `
-    <div class="detail-inner" style="display:block;padding:14px 20px;">
-      <ul class="log-list">
-        ${members.map(m => `
-          <li>
-            <span class="lk"><span class="sku">${m.sku}</span> —${m.nama}</span>
-            <span class="lv">
-              <span class="dim">P${m.p}×L${m.l}×T${m.t}</span>
-              <span class="dim">${m.berat}g</span>${m.motorModel ? `<span class="motor-badge">${m.motorModel}</span>` : ''}
-            </span>
-          </li>`).join('')}
-      </ul>
+    <div class="detail-inner" style="display:block; padding:16px 20px;">
+      <h4 style="margin: 0 0 10px; font-size:12.5px; font-weight:800; color:var(--muted); text-transform:uppercase;">Rincian Varian Produk &amp; Dimensi PLT</h4>
+      <div class="table-scroll">
+        <table style="background:#fff; min-width:100%;">
+          <thead>
+            <tr>
+              <th>SKU Varian</th>
+              <th>Nama Produk</th>
+              <th>Berat (g)</th>
+              <th>Volume (g)</th>
+              <th>Dimensi (P × L × T)</th>
+              <th>Tipe Motor Honda</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${members.map(m => `
+              <tr>
+                <td class="sku">${m.sku}</td>
+                <td class="prodname">${m.nama || '—'}</td>
+                <td class="dim">${m.berat ? m.berat.toLocaleString('id-ID') : '—'}</td>
+                <td class="dim">${m.volume ? m.volume.toLocaleString('id-ID') : '—'}</td>
+                <td class="dim" style="font-weight:700; color:var(--ink);">${(m.p||m.l||m.t) ? `${m.p} × ${m.l} × ${m.t} cm` : '—'}</td>
+                <td>${m.motorModel ? `<span class="motor-badge">${m.motorModel}</span>` : '<span class="dim">—</span>'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
     </div>`;
 }
 
