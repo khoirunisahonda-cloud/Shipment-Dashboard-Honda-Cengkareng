@@ -148,7 +148,7 @@
   .btn.dark:hover{background:#000;border-color:#000;}
 
   .kpis{
-    display:grid;grid-template-columns:repeat(5,1fr);gap:14px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
     margin:0 0 24px;
   }
   .kpi{
@@ -216,6 +216,8 @@
   tbody tr.incomplete td:first-child{box-shadow:inset 4px 0 0 var(--amber);}
   .sku{font-family:var(--mono);font-size:12.5px;font-weight:600;}
   .motor-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:#eef2ff;color:var(--violet);border:1px solid #c7d2fe;}
+  .code-badge{display:inline-block;font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#f3f0ff;color:var(--violet);border:1px solid #ddd6fe; font-family:var(--mono);}
+  
   .badge{
     display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;
   }
@@ -235,14 +237,14 @@
   .clean-status-item .st-val { font-family: var(--mono); font-weight: 700; }
 
   .dim{color:var(--muted);font-family:var(--mono);font-size:12px;}
-  .prodname{max-width:300px; font-weight:600;}
+  .prodname{max-width:320px; font-weight:600;}
   .flag{color:var(--amber);font-size:11px;margin-left:6px;font-weight:700;}
   .chevron{color:var(--faint);font-size:12px;}
 
   tr.detail-row td{background:var(--paper);padding:0;border-bottom:1px solid var(--line);}
   .detail-inner{padding:20px 24px;display:none;}
   tr.detail-row.open .detail-inner{display:block;}
-  .detail-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
   .detail-block h4{font-size:13px;font-weight:800;margin:0 0 12px;color:var(--ink); text-transform: uppercase; letter-spacing: 0.02em;}
   .log-list{list-style:none;margin:0;padding:0;}
   .log-list li{
@@ -378,7 +380,7 @@
 <div id="appRoot">
   <div class="layout-container">
     
-    <!-- Sidebar Kiri Modern -->
+    <!-- Sidebar Kiri Modern dengan Ikon Baru -->
     <aside class="sidebar">
       <div class="sidebar-brand">
         <div class="sidebar-brand-icon">
@@ -391,16 +393,19 @@
       </div>
       
       <div class="sidebar-nav" id="pageNav">
+        <!-- Ikon SKU & Master Part (Box / Inventory) -->
         <button class="nav-btn active" data-page="page-master">
-          <svg viewBox="0 0 24 24"><path d="M4 13h6c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1zm0 8h6c.55 0 1-.45 1-1v-4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1zm10 0h6c.55 0 1-.45 1-1v-8c0-.55-.45-1-1-1h-6c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1zm0-18v4c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1h-6c-.55 0-1 .45-1 1z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4 8 4 8-4zm-16 4.5v7l8 4 8-4v-7l-8 4-8-4z"/></svg>
           SKU &amp; Master Part
         </button>
+        <!-- Ikon Variation Master (Tags / Catalog) -->
         <button class="nav-btn" data-page="page-variation">
-          <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11zM12 22l5.5-9h-11z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
           Variation Master
         </button>
+        <!-- Ikon Selisih Ongkos Kirim (Truck / Shipping) -->
         <button class="nav-btn" data-page="page-selisih">
-          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14I7 12l1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
           Selisih Ongkos Kirim
         </button>
       </div>
@@ -414,7 +419,7 @@
     <!-- Content Area (Kanan) -->
     <main class="main-content">
 
-      <!-- PAGE 1: MASTER PART (ASLI/UTUH) -->
+      <!-- PAGE 1: MASTER PART -->
       <div id="page-master" class="page">
         <div class="header-actions">
           <div>
@@ -428,7 +433,6 @@
           <div class="kpi k-super"><div class="label">Supersede</div><div class="num" id="kSupersede">–</div><div class="sub">perlu ganti SKU</div></div>
           <div class="kpi k-disc"><div class="label">Discontinue</div><div class="num" id="kDiscontinue">–</div><div class="sub">tidak dijual lagi</div></div>
           <div class="kpi k-incomplete"><div class="label">Data Belum Lengkap</div><div class="num" id="kIncomplete">–</div><div class="sub">berat/dimensi = 0</div></div>
-          <div class="kpi" style="border-left-color:#0f766e;"><div class="label">Grup Varian / Tipe Motor</div><div class="num" id="kGroups" style="color:#0f766e;">–</div><div class="sub">Pasangan / Varian Motor</div></div>
         </div>
 
         <div class="section">
@@ -509,31 +513,36 @@
         </div>
       </div>
 
-      <!-- PAGE 2: VARIATION MASTER (HALAMAN TERPISAH) -->
+      <!-- PAGE 2: VARIATION MASTER (SHOPEE CATALOG) -->
       <div id="page-variation" class="page" style="display:none;">
         <div class="header-actions">
           <div>
-            <h1>Variation Master Dashboard</h1>
-            <p style="margin:2px 0 0; color:var(--muted); font-size:13px;">Analisis Kelompok Varian Warna, Pasangan Kiri-Kanan, dan Spesifikasi Dimensi PLT Detail</p>
+            <h1>Variation Master (Shopee Catalog)</h1>
+            <p style="margin:2px 0 0; color:var(--muted); font-size:13px;">Monitoring Katalog Variasi Shopee — Pengelompokan Berdasarkan Kode Produk &amp; Nama Produk Catalog</p>
           </div>
         </div>
 
         <!-- Variation Master KPIs -->
-        <div class="kpis" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+        <div class="kpis" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
           <div class="kpi">
-            <div class="label">Total Kelompok Varian</div>
-            <div class="num" id="vmTotalGroups" style="color:var(--violet);">–</div>
-            <div class="sub">kelompok terdeteksi</div>
+            <div class="label">Total Katalog Variasi</div>
+            <div class="num" id="vmTotalCatalogs" style="color:var(--violet);">–</div>
+            <div class="sub">1 Kode Produk = 1 Katalog</div>
           </div>
           <div class="kpi k-fast">
-            <div class="label">Rata-Rata Varian / Grup</div>
+            <div class="label">Total SKU Induk Varian</div>
+            <div class="num" id="vmTotalVarSKUs">–</div>
+            <div class="sub">pilihan variasi aktif</div>
+          </div>
+          <div class="kpi k-nonfast">
+            <div class="label">Rata-Rata Varian / Katalog</div>
             <div class="num" id="vmAvgVariants">–</div>
-            <div class="sub">SKU anak per kelompok</div>
+            <div class="sub">opsi variasi per produk</div>
           </div>
           <div class="kpi k-incomplete">
-            <div class="label">Grup Varian Terbesar</div>
-            <div class="num" id="vmMaxVariantCount">–</div>
-            <div class="sub" id="vmMaxVariantLabel">0 SKU</div>
+            <div class="label">Katalog Terbesar</div>
+            <div class="num" id="vmMaxCatalogCode">–</div>
+            <div class="sub" id="vmMaxCatalogLabel">0 SKU Varian</div>
           </div>
         </div>
 
@@ -541,57 +550,56 @@
         <div class="section">
           <div class="section-head">
             <div>
-              <h2>Grafik Analisis Varian</h2>
-              <p>Distribusi status varian dan kelompok motor dengan varian terbanyak</p>
+              <h2>Visualisasi Katalog &amp; Distribusi Variasi</h2>
+              <p>Analisis jumlah varian terbanyak per katalog dan proporsi kategori produk</p>
             </div>
           </div>
           <div class="section-body">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
               <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px;">
-                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Distribusi Status Varian SKU</h4>
-                <canvas id="vmStatusChart" height="200"></canvas>
+                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Top 10 Katalog Shopee dengan Varian Terbanyak</h4>
+                <canvas id="vmTopCatalogsChart" height="210"></canvas>
               </div>
               <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px;">
-                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Top 10 Kelompok Varian Terbanyak</h4>
-                <canvas id="vmTopGroupsChart" height="200"></canvas>
+                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Distribusi Jumlah Varian per Katalog</h4>
+                <canvas id="vmVarDistributionChart" height="210"></canvas>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- TABEL VARIATION MASTER DENGAN DATA PLT -->
+        <!-- TABEL VARIATION MASTER -->
         <div class="section">
           <div class="section-head">
             <div>
-              <h2>Tabel Kelompok Varian &amp; Spesifikasi PLT</h2>
-              <p>Daftar SKU Varian yang dilengkapi dengan Berat, Volume, dan Dimensi Panjang × Lebar × Tinggi</p>
+              <h2>Tabel Katalog Variasi Shopee &amp; Dimensi PLT</h2>
+              <p>Menampilkan Kode Produk Katalog, Nama Produk Utama, serta Pilihan SKU Varian &amp; Ukuran PLT</p>
             </div>
           </div>
           <div class="section-body">
             <div class="controls">
-              <input type="text" class="search-box" id="groupSearchBox" placeholder="Cari kode motor atau nama produk varian...">
-              <button class="btn small ghost" id="resetGroupSearchBtn">Reset</button>
-              <div class="chip active" id="groupOnlyMultiToggle">Hanya grup ≥ 2 SKU</div>
+              <input type="text" class="search-box" id="varSearchBox" placeholder="Cari Kode Produk, Nama Produk Katalog, atau SKU Induk Varian...">
+              <button class="btn small ghost" id="resetVarSearchBtn">Reset</button>
             </div>
             <div class="table-scroll">
               <table>
                 <thead>
                   <tr>
-                    <th>Kode Motor / Kelompok</th>
-                    <th>Tipe Motor Honda</th>
-                    <th>Jumlah Varian</th>
-                    <th>Nama Produk (Acuan)</th>
-                    <th>Status Varian</th>
+                    <th>Kode Produk Katalog</th>
+                    <th>Nama Produk Katalog Shopee</th>
+                    <th>Jumlah SKU Varian</th>
+                    <th>Contoh Varian Utama</th>
+                    <th>Status Katalog</th>
                     <th></th>
                   </tr>
                 </thead>
-                <tbody id="groupsBody">
-                  <tr><td colspan="6"><div class="loading-state">Menunggu data…</div></td></tr>
+                <tbody id="varTableBody">
+                  <tr><td colspan="6"><div class="loading-state">Memuat data Katalog Variasi…</div></td></tr>
                 </tbody>
               </table>
             </div>
-            <div class="footer-note" id="groupCountNote"></div>
-            <div class="pagination" id="groupPaginationControls"></div>
+            <div class="footer-note" id="varCountNote"></div>
+            <div class="pagination" id="varPaginationControls"></div>
           </div>
         </div>
       </div>
@@ -631,7 +639,6 @@
               </div>
             </div>
 
-            <!-- FILTER BAR & ADJUST TANGGAL -->
             <div class="filter-bar-selisih">
               <div class="filter-group">
                 <label>Tanggal Mulai</label>
@@ -667,7 +674,6 @@
           </div>
         </div>
 
-        <!-- KPI SELISIH STATISTIK NOMINAL -->
         <div class="kpis" id="selisihKpiRow" style="grid-template-columns:repeat(4,1fr);">
           <div class="kpi"><div class="label">Total Selisih (Terfilter)</div><div class="num" id="skTotal">–</div><div class="sub">akumulasi nominal selisih</div></div>
           <div class="kpi k-fast"><div class="label">Nominal Approved</div><div class="num" id="skApprovedNominal">–</div><div class="sub" id="skApprovedSub">0 transaksi</div></div>
@@ -675,7 +681,6 @@
           <div class="kpi k-disc"><div class="label">Nominal Rejected</div><div class="num" id="skRejectedNominal">–</div><div class="sub" id="skRejectedSub">0 transaksi</div></div>
         </div>
 
-        <!-- VISUAL GRAFIK CHART DENGAN TOGGLE TYPE (HARIAN VS PERIODE) -->
         <div class="section">
           <div class="section-head">
             <div>
@@ -692,7 +697,6 @@
           </div>
         </div>
 
-        <!-- REKAPAN TABEL HANYA KHUSUS PER PERIODE -->
         <div class="section">
           <div class="section-head">
             <div>
@@ -773,7 +777,6 @@ const HONDA_MOTOR_CODES = {
   'K97': 'PCX 150 Lokal (2018-2021)', 'K1Z': 'PCX 160 (2021-2026)',
   'K2V': 'ADV 160 (2022-2026)', 'K0W': 'ADV 150 (2019-2022)'
 };
-const VALID_HONDA_CODES_SET = new Set(Object.keys(HONDA_MOTOR_CODES));
 
 function detectMotorModel(sku) {
   if (!sku || sku.length < 8) return '';
@@ -783,27 +786,6 @@ function detectMotorModel(sku) {
   const mid3 = cleanSku.substring(5, 8);
   if (HONDA_MOTOR_CODES[mid3]) return `${mid3} (${HONDA_MOTOR_CODES[mid3]})`;
   return '';
-}
-
-function getStrictMotorCode(sku) {
-  if (!sku || sku.length < 8) return null;
-  const clean = sku.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-  const mid4 = clean.substring(5, 9);
-  if (VALID_HONDA_CODES_SET.has(mid4)) return mid4;
-  const mid3 = clean.substring(5, 8);
-  if (VALID_HONDA_CODES_SET.has(mid3)) return mid3;
-  return null;
-}
-
-function normalizeSkuLR(sku) {
-  if (!sku) return '';
-  return sku.trim().toUpperCase().replace(/[-_\s]?[LR]$/i, '');
-}
-
-function normalizeNameLR(name) {
-  if (!name) return '';
-  let norm = name.trim().toUpperCase().replace(/\s+/g, ' ');
-  return norm.split(' ').filter(t => !['L', 'R', 'LEFT', 'RIGHT', 'KIRI', 'KANAN'].includes(t)).join(' ');
 }
 
 // Login Gate
@@ -837,21 +819,22 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 
 const SHEET_ID = '1X7LWev4Es_0cEaCIZz1kFXQ4_6yJ35Nx8l-2beLTmZ4';
-const GID = '558503409';
-const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
-const LINKS_GID = '835139046';
-const LINKS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${LINKS_GID}`;
+const GID_CENTRAL = '558503409';
+const GID_VARIATION = '1126632130'; 
+
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID_CENTRAL}`;
+const VARIATION_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID_VARIATION}`;
 
 let sheetRows = [];
 let importedRows = [];
 let rawRows = [];
-let extras = {};
+let variationCatalogs = []; 
 let sortState = { key: null, dir: 1 };
 let filterState = { status: 'ALL', incompleteOnly: false, q: '', skuList: null };
 let openDetail = new Set();
 let selectedForDelete = new Set();
-let openGroups = new Set();
-let groupState = { onlyMulti: true, q: '' };
+let openVarCatalogs = new Set();
+let varSearchQuery = '';
 let currentPage = 1;
 const PAGE_SIZE = 50;
 
@@ -863,7 +846,7 @@ function safeSetLS(key, value){
   try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
 }
 
-function rebuildRawRows(){ rawRows = sheetRows.concat(importedRows); groupsCache = null; }
+function rebuildRawRows(){ rawRows = sheetRows.concat(importedRows); }
 
 function findKey(headers, needles){
   const norm = h => h.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -899,47 +882,9 @@ function statusBadgeClass(cat){
 }
 function statusLabel(cat, raw){ return raw && raw.trim() ? raw.trim() : cat; }
 
-function normalizeUrl(link){
-  if(!link) return '';
-  let val = String(link).trim();
-  if(!val) return '';
-  if(!/^https?:\/\//i.test(val)) val = 'https://' + val.replace(/^\/+/, '');
-  return val;
-}
-
-function getExtra(sku){
-  return extras[sku] || { docLink:'' };
-}
-function setExtra(sku, patch){
-  extras[sku] = Object.assign(getExtra(sku), patch);
-  safeSetLS('mp_extras_v1', extras);
-}
-
-async function loadLinksMap(){
-  try{
-    const res = await fetch(LINKS_CSV_URL);
-    if(!res.ok) return {};
-    const csvText = await res.text();
-    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-    const headers = parsed.meta.fields || [];
-    const kSku = findKey(headers, ['sku']);
-    const kLink = findKey(headers, ['link folder']) || findKey(headers, ['link']);
-    if(!kSku || !kLink) return {};
-    const map = {};
-    parsed.data.forEach(r => {
-      const rawSku = String(r[kSku] || '').trim();
-      if(!rawSku) return;
-      if(!/^[A-Za-z0-9]+$/.test(rawSku)) return;
-      const link = normalizeUrl(r[kLink]);
-      if(link) map[rawSku.toUpperCase()] = link;
-    });
-    return map;
-  }catch(err){ return {}; }
-}
-
 async function loadData(){
   try{
-    const [res, linksMap] = await Promise.all([fetch(CSV_URL), loadLinksMap()]);
+    const res = await fetch(CSV_URL);
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const csvText = await res.text();
     const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: false });
@@ -957,7 +902,6 @@ async function loadData(){
     const kTinggi = findExactKey(headers, 't') || findKey(headers, ['tinggi']);
     const kTglOps = findKey(headers, ['tanggal input ops']) || findKey(headers, ['tgl input ops']);
     const kUpdateShopee = findKey(headers, ['update shopee']);
-    const kLampiran = findKey(headers, ['lampiran pengukuran']) || findKey(headers, ['lampiran']);
 
     if(!kSku){ throw new Error('Kolom "SKU Induk" tidak ditemukan di sheet ini.'); }
 
@@ -985,15 +929,70 @@ async function loadData(){
           max: kMax ? parseNum(r[kMax]) : 0, berat, volume, p, l, t,
           tglOps: kTglOps ? String(r[kTglOps] || '').trim() : '',
           updateShopee: kUpdateShopee ? String(r[kUpdateShopee] || '').trim() : '',
-          sheetDocLink: linksMap[skuClean.toUpperCase()] || (kLampiran ? normalizeUrl(r[kLampiran]) : ''),
           incomplete, source: 'sheets'
         };
       });
     rebuildRawRows();
     renderAll();
+    loadVariationMasterData();
   }catch(err){
     document.getElementById('tableBody').innerHTML =
       `<tr><td colspan="11"><div class="error-state">Gagal menarik data dari Google Sheets: ${err.message}.</div></td></tr>`;
+  }
+}
+
+async function loadVariationMasterData(){
+  try{
+    const res = await fetch(VARIATION_CSV_URL);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const csvText = await res.text();
+    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+    const headers = parsed.meta.fields || [];
+
+    const kKodeProd = findKey(headers, ['kode produk']) || findKey(headers, ['kode']);
+    const kNamaProd = findKey(headers, ['nama produk']) || findKey(headers, ['nama catalog']) || findKey(headers, ['nama']);
+    const kSku = findKey(headers, ['sku induk']) || findKey(headers, ['sku']);
+    const kBerat = findKey(headers, ['berat']);
+    const kVolume = findKey(headers, ['volume']);
+    const kP = findExactKey(headers, 'p') || findKey(headers, ['panjang']);
+    const kL = findExactKey(headers, 'l') || findKey(headers, ['lebar']);
+    const kT = findExactKey(headers, 't') || findKey(headers, ['tinggi']);
+
+    const catalogGroups = {};
+
+    parsed.data.forEach(r => {
+      const code = kKodeProd ? String(r[kKodeProd] || '').trim() : 'TANPA_KODE';
+      const catalogName = kNamaProd ? String(r[kNamaProd] || '').trim() : 'Katalog Tanpa Nama';
+      const sku = kSku ? String(r[kSku] || '').trim() : '';
+      if(!sku) return;
+
+      const groupKey = `${code}__${catalogName}`;
+
+      if(!catalogGroups[groupKey]){
+        catalogGroups[groupKey] = {
+          code: code,
+          catalogName: catalogName,
+          items: []
+        };
+      }
+
+      catalogGroups[groupKey].items.push({
+        sku: sku,
+        nama: catalogName,
+        berat: kBerat ? parseNum(r[kBerat]) : 0,
+        volume: kVolume ? parseNum(r[kVolume]) : 0,
+        p: kP ? parseNum(r[kP]) : 0,
+        l: kL ? parseNum(r[kL]) : 0,
+        t: kT ? parseNum(r[kT]) : 0,
+        motorModel: detectMotorModel(sku)
+      });
+    });
+
+    variationCatalogs = Object.values(catalogGroups);
+    renderVariationMasterPage();
+  }catch(err){
+    document.getElementById('varTableBody').innerHTML =
+      `<tr><td colspan="6"><div class="error-state">Gagal menarik data Variation Master: ${err.message}.</div></td></tr>`;
   }
 }
 
@@ -1032,11 +1031,6 @@ function getFilteredRows(){
 }
 
 function detailHtml(r){
-  const ex = getExtra(r.sku);
-  const effectiveDocLink = normalizeUrl(r.sheetDocLink || ex.docLink);
-  const docLinkHtml = effectiveDocLink
-    ? `<div class="doc-link"><a href="${effectiveDocLink}" target="_blank" rel="noopener">Buka dokumentasi ↗</a></div>`
-    : `<div class="doc-empty">Belum ada link dokumentasi.</div>`;
   const shopeeDate = r.updateShopee && r.updateShopee.trim() ? r.updateShopee : 'Belum Update';
   return `
     <div class="detail-inner">
@@ -1054,12 +1048,6 @@ function detailHtml(r){
           <div style="margin-bottom:16px;">
             <span class="mp-toggle ${r.updateShopee && r.updateShopee.trim() ? 'on' : ''}">Shopee — ${shopeeDate}</span>
           </div>
-          <h4>Link Dokumentasi</h4>
-          <div class="doc-row" style="display:flex; gap:8px;">
-            <input type="text" class="docLinkInput search-box" data-sku="${r.sku}" placeholder="Tempel link foto..." value="${ex.docLink || ''}">
-            <button class="btn small saveDocBtn" data-sku="${r.sku}">Simpan</button>
-          </div>
-          <div class="doc-link-holder" style="margin-top:8px;">${docLinkHtml}</div>
         </div>
       </div>
     </div>`;
@@ -1139,15 +1127,6 @@ function attachRowHandlers(){
       updateDeleteSelectedBtn();
     });
   });
-  document.querySelectorAll('.saveDocBtn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const sku = btn.dataset.sku;
-      const input = document.querySelector(`.docLinkInput[data-sku="${sku}"]`);
-      setExtra(sku, { docLink: normalizeUrl(input.value) });
-      renderTable();
-    });
-  });
 }
 
 function updateDeleteSelectedBtn(){
@@ -1157,75 +1136,105 @@ function updateDeleteSelectedBtn(){
   btn.style.display = count > 0 ? 'inline-block' : 'none';
 }
 
-function computeGroups(rows){
-  const n = rows.length;
-  const parent = Array.from({length: n}, (_, i) => i);
-  function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
-  function union(a, b) { const ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; }
+// LOGIK VARIATION MASTER
+let vmTopCatalogsChartInstance = null;
+let vmVarDistChartInstance = null;
 
-  const groupKeyMap = {};
-  rows.forEach((r, i) => {
-    const motorCode = getStrictMotorCode(r.sku);
-    if (!motorCode) return;
-    const baseSku = normalizeSkuLR(r.sku.slice(0, 10));
-    const baseName = normalizeNameLR(r.nama);
-    const primaryGroupKey = `${motorCode}_${baseSku}`;
-    const secondaryGroupKey = baseName ? `${motorCode}_NAME_${baseName}` : null;
+function renderVariationMasterPage() {
+  if(!variationCatalogs) return;
 
-    if (groupKeyMap[primaryGroupKey] === undefined) groupKeyMap[primaryGroupKey] = i;
-    else union(i, groupKeyMap[primaryGroupKey]);
+  const totalCatalogs = variationCatalogs.length;
+  let totalSKUs = 0;
+  let maxSKUCount = 0;
+  let maxCode = '—';
 
-    if (secondaryGroupKey) {
-      if (groupKeyMap[secondaryGroupKey] === undefined) groupKeyMap[secondaryGroupKey] = i;
-      else union(i, groupKeyMap[secondaryGroupKey]);
+  variationCatalogs.forEach(cat => {
+    const len = cat.items.length;
+    totalSKUs += len;
+    if(len > maxSKUCount) {
+      maxSKUCount = len;
+      maxCode = cat.code;
     }
   });
 
-  const groupsMap = {};
-  rows.forEach((r, i) => {
-    const motorCode = getStrictMotorCode(r.sku);
-    if (!motorCode) return;
-    const root = find(i);
-    if (!groupsMap[root]) groupsMap[root] = [];
-    groupsMap[root].push(r);
-  });
-  return Object.values(groupsMap);
+  const avgVariants = totalCatalogs > 0 ? (totalSKUs / totalCatalogs).toFixed(1) : '0';
+
+  document.getElementById('vmTotalCatalogs').textContent = totalCatalogs.toLocaleString('id-ID');
+  document.getElementById('vmTotalVarSKUs').textContent = totalSKUs.toLocaleString('id-ID');
+  document.getElementById('vmAvgVariants').textContent = `${avgVariants} SKU`;
+  document.getElementById('vmMaxCatalogCode').textContent = maxCode;
+  document.getElementById('vmMaxCatalogLabel').textContent = `${maxSKUCount} SKU Varian`;
+
+  renderVariationCharts();
+  renderVariationTable();
 }
 
-let groupsCache = null;
-function getGroupsCached(){
-  if(!groupsCache) groupsCache = computeGroups(rawRows);
-  return groupsCache;
-}
+function renderVariationCharts() {
+  const sorted = [...variationCatalogs].sort((a,b) => b.items.length - a.items.length);
 
-function getFilteredGroups(){
-  const groups = getGroupsCached();
-  let entries = groups.map(members => {
-    const mCode = getStrictMotorCode(members[0].sku) || 'Grup Varian';
-    return [mCode, members];
-  });
-  if(groupState.onlyMulti){ entries = entries.filter(([k, members]) => members.length >= 2); }
-  if(groupState.q){
-    const q = groupState.q.toLowerCase();
-    entries = entries.filter(([k, members]) =>
-      k.toLowerCase().includes(q) || members.some(m => m.nama.toLowerCase().includes(q) || m.sku.toLowerCase().includes(q) || m.motorModel.toLowerCase().includes(q))
-    );
+  const top10 = sorted.slice(0, 10);
+  const ctxTop = document.getElementById('vmTopCatalogsChart');
+  if(ctxTop) {
+    if(vmTopCatalogsChartInstance) vmTopCatalogsChartInstance.destroy();
+    vmTopCatalogsChartInstance = new Chart(ctxTop, {
+      type: 'bar',
+      data: {
+        labels: top10.map(c => c.code),
+        datasets: [{
+          label: 'Jumlah SKU Varian',
+          data: top10.map(c => c.items.length),
+          backgroundColor: '#6f42c1',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true } }
+      }
+    });
   }
-  entries.sort((a, b) => b[1].length - a[1].length);
-  return entries;
+
+  let single = 0, smallGroup = 0, mediumGroup = 0, largeGroup = 0;
+  variationCatalogs.forEach(c => {
+    const len = c.items.length;
+    if(len === 1) single++;
+    else if(len <= 3) smallGroup++;
+    else if(len <= 7) mediumGroup++;
+    else largeGroup++;
+  });
+
+  const ctxDist = document.getElementById('vmVarDistributionChart');
+  if(ctxDist) {
+    if(vmVarDistChartInstance) vmVarDistChartInstance.destroy();
+    vmVarDistChartInstance = new Chart(ctxDist, {
+      type: 'doughnut',
+      data: {
+        labels: ['1 SKU Varian', '2 - 3 Varian', '4 - 7 Varian', '> 7 Varian'],
+        datasets: [{
+          data: [single, smallGroup, mediumGroup, largeGroup],
+          backgroundColor: ['#adb5bd', '#198754', '#d97706', '#e4002b']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'right', labels: { font: { family: 'Manrope', weight: '700' } } } }
+      }
+    });
+  }
 }
 
-// TABEL RINCIAN VARIATION MASTER DENGAN DATA PLT LENGKAP
-function groupDetailHtml(members){
+function varDetailHtml(items) {
   return `
     <div class="detail-inner" style="display:block; padding:16px 20px;">
-      <h4 style="margin: 0 0 10px; font-size:12.5px; font-weight:800; color:var(--muted); text-transform:uppercase;">Rincian Varian Produk &amp; Dimensi PLT</h4>
+      <h4 style="margin: 0 0 10px; font-size:12.5px; font-weight:800; color:var(--muted); text-transform:uppercase;">Daftar Pilihan Varian dalam Katalog Ini &amp; Dimensi PLT</h4>
       <div class="table-scroll">
         <table style="background:#fff; min-width:100%;">
           <thead>
             <tr>
-              <th>SKU Varian</th>
-              <th>Nama Produk</th>
+              <th>SKU Induk Varian</th>
+              <th>Nama Varian Produk</th>
               <th>Berat (g)</th>
               <th>Volume (g)</th>
               <th>Dimensi (P × L × T)</th>
@@ -1233,10 +1242,10 @@ function groupDetailHtml(members){
             </tr>
           </thead>
           <tbody>
-            ${members.map(m => `
+            ${items.map(m => `
               <tr>
                 <td class="sku">${m.sku}</td>
-                <td class="prodname">${m.nama || '—'}</td>
+                <td class="prodname">${m.nama}</td>
                 <td class="dim">${m.berat ? m.berat.toLocaleString('id-ID') : '—'}</td>
                 <td class="dim">${m.volume ? m.volume.toLocaleString('id-ID') : '—'}</td>
                 <td class="dim" style="font-weight:700; color:var(--ink);">${(m.p||m.l||m.t) ? `${m.p} × ${m.l} × ${m.t} cm` : '—'}</td>
@@ -1248,175 +1257,78 @@ function groupDetailHtml(members){
     </div>`;
 }
 
-let currentGroupPage = 1;
-const GROUP_PAGE_SIZE = 50;
+let currentVarPage = 1;
+const VAR_PAGE_SIZE = 50;
 
-function renderGroups(){
-  const allEntries = getFilteredGroups();
-  const totalEntries = allEntries.length;
-  const totalGroupPages = Math.max(1, Math.ceil(totalEntries / GROUP_PAGE_SIZE));
-  if(currentGroupPage > totalGroupPages) currentGroupPage = totalGroupPages;
-  if(currentGroupPage < 1) currentGroupPage = 1;
-  const gStart = (currentGroupPage - 1) * GROUP_PAGE_SIZE;
-  const entries = allEntries.slice(gStart, gStart + GROUP_PAGE_SIZE);
-  const tbody = document.getElementById('groupsBody');
+function renderVariationTable() {
+  let filtered = variationCatalogs;
+  if(varSearchQuery) {
+    const q = varSearchQuery.toLowerCase();
+    filtered = filtered.filter(c => 
+      c.code.toLowerCase().includes(q) ||
+      c.catalogName.toLowerCase().includes(q) ||
+      c.items.some(i => i.sku.toLowerCase().includes(q))
+    );
+  }
 
-  if(entries.length === 0){
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Tidak ada kelompok SKU varian yang cocok.</div></td></tr>`;
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / VAR_PAGE_SIZE));
+  if(currentVarPage > totalPages) currentVarPage = totalPages;
+  if(currentVarPage < 1) currentVarPage = 1;
+
+  const startIdx = (currentVarPage - 1) * VAR_PAGE_SIZE;
+  const pageItems = filtered.slice(startIdx, startIdx + VAR_PAGE_SIZE);
+  const tbody = document.getElementById('varTableBody');
+
+  if(pageItems.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Tidak ada katalog variasi yang cocok dengan pencarian.</div></td></tr>`;
   } else {
-    tbody.innerHTML = entries.map(([key, members], idx) => {
-      const groupKey = `${key}_${idx}`;
-      const isOpen = openGroups.has(groupKey);
-      const sampleName = (members.find(m => m.nama)?.nama || '—');
-      const motorModel = (members.find(m => m.motorModel)?.motorModel || '—');
+    tbody.innerHTML = pageItems.map((cat, idx) => {
+      const key = `${cat.code}_${idx}`;
+      const isOpen = openVarCatalogs.has(key);
+      const firstSku = cat.items[0]?.sku || '—';
       return `
-      <tr class="datarow" data-group="${groupKey}">
-        <td><span class="motor-badge">${key}</span></td>
-        <td>${motorModel !== '—' ? `<span class="motor-badge">${motorModel}</span>` : '<span class="dim">—</span>'}</td>
-        <td class="dim">${members.length} SKU Varian</td>
-        <td class="prodname">${sampleName}</td>
-        <td><span class="badge fast">Pasangan / Varian Valid</span></td>
-        <td class="chevron">${isOpen ? '▲' : '▼'}</td>
-      </tr>
-      <tr class="detail-row ${isOpen ? 'open' : ''}">
-        <td colspan="6">${isOpen ? groupDetailHtml(members) : ''}</td>
-      </tr>`;
+        <tr class="datarow" data-varkey="${key}">
+          <td><span class="code-badge">${cat.code}</span></td>
+          <td class="prodname">${cat.catalogName}</td>
+          <td class="dim" style="font-weight:700;">${cat.items.length} SKU Varian</td>
+          <td class="sku">${firstSku}</td>
+          <td><span class="badge fast">Katalog Aktif</span></td>
+          <td class="chevron">${isOpen ? '▲' : '▼'}</td>
+        </tr>
+        <tr class="detail-row ${isOpen ? 'open' : ''}">
+          <td colspan="6">${isOpen ? varDetailHtml(cat.items) : ''}</td>
+        </tr>`;
     }).join('');
   }
-  document.getElementById('groupCountNote').textContent = `Menampilkan ${entries.length} kelompok varian (dari ${totalEntries} total grup)`;
-  document.getElementById('kGroups').textContent = totalEntries.toLocaleString('id-ID');
 
-  document.querySelectorAll('#groupsBody tr.datarow').forEach(tr => {
+  document.getElementById('varCountNote').textContent = `Menampilkan ${pageItems.length} katalog (dari ${total} total katalog variasi Shopee)`;
+
+  document.querySelectorAll('#varTableBody tr.datarow').forEach(tr => {
     tr.addEventListener('click', () => {
-      const key = tr.dataset.group;
-      if(openGroups.has(key)) openGroups.delete(key); else openGroups.add(key);
-      renderGroups();
+      const key = tr.dataset.varkey;
+      if(openVarCatalogs.has(key)) openVarCatalogs.delete(key); else openVarCatalogs.add(key);
+      renderVariationTable();
     });
   });
-
-  renderVariationMasterModule();
 }
 
-// Modul Graphic Variation Master
-let vmStatusChartInstance = null;
-let vmTopGroupsChartInstance = null;
-
-function renderVariationMasterModule() {
-  const groups = getGroupsCached();
-  if (!groups || groups.length === 0) return;
-
-  const totalGroups = groups.length;
-  let totalVariantsSum = 0;
-  let maxCount = 0;
-  let maxGroupKey = '—';
-
-  const statusCounts = { 'FAST': 0, 'NONFAST': 0, 'SUPERSEDE': 0, 'DISCONTINUE': 0, 'OTHER': 0 };
-
-  groups.forEach(members => {
-    const count = members.length;
-    totalVariantsSum += count;
-
-    if (count > maxCount) {
-      maxCount = count;
-      maxGroupKey = getStrictMotorCode(members[0].sku) || members[0].sku;
-    }
-
-    members.forEach(m => {
-      const cat = m.statusCat || 'OTHER';
-      if (statusCounts[cat] !== undefined) statusCounts[cat]++;
-      else statusCounts['OTHER']++;
-    });
-  });
-
-  const avgVariants = totalGroups > 0 ? (totalVariantsSum / totalGroups).toFixed(1) : '0';
-
-  document.getElementById('vmTotalGroups').textContent = totalGroups.toLocaleString('id-ID');
-  document.getElementById('vmAvgVariants').textContent = `${avgVariants} SKU`;
-  document.getElementById('vmMaxVariantCount').textContent = maxGroupKey;
-  document.getElementById('vmMaxVariantLabel').textContent = `${maxCount} SKU anak`;
-
-  const ctxStatus = document.getElementById('vmStatusChart');
-  if (ctxStatus) {
-    if (vmStatusChartInstance) vmStatusChartInstance.destroy();
-    vmStatusChartInstance = new Chart(ctxStatus, {
-      type: 'doughnut',
-      data: {
-        labels: ['Fast Moving', 'Non-Fast', 'Supersede', 'Discontinue', 'Lainnya'],
-        datasets: [{
-          data: [
-            statusCounts['FAST'],
-            statusCounts['NONFAST'],
-            statusCounts['SUPERSEDE'],
-            statusCounts['DISCONTINUE'],
-            statusCounts['OTHER']
-          ],
-          backgroundColor: ['#198754', '#495057', '#6f42c1', '#e4002b', '#adb5bd']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'right', labels: { font: { family: 'Manrope', weight: '700', size: 11 } } }
-        }
-      }
-    });
-  }
-
-  const sortedGroups = [...groups].sort((a, b) => b.length - a.length).slice(0, 10);
-  const topLabels = sortedGroups.map(g => getStrictMotorCode(g[0].sku) || g[0].sku);
-  const topValues = sortedGroups.map(g => g.length);
-
-  const ctxTop = document.getElementById('vmTopGroupsChart');
-  if (ctxTop) {
-    if (vmTopGroupsChartInstance) vmTopGroupsChartInstance.destroy();
-    vmTopGroupsChartInstance = new Chart(ctxTop, {
-      type: 'bar',
-      data: {
-        labels: topLabels,
-        datasets: [{
-          label: 'Jumlah SKU Varian',
-          data: topValues,
-          backgroundColor: '#6f42c1',
-          borderRadius: 4
-        }]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => ` Total Varian: ${ctx.raw} SKU`
-            }
-          }
-        },
-        scales: {
-          x: { beginAtZero: true, ticks: { precision: 0 } }
-        }
-      }
-    });
-  }
-}
-
-document.getElementById('resetGroupSearchBtn').addEventListener('click', () => {
-  document.getElementById('groupSearchBox').value = '';
-  groupState.q = '';
-  currentGroupPage = 1;
-  renderGroups();
+document.getElementById('varSearchBox').addEventListener('input', (e) => {
+  varSearchQuery = e.target.value;
+  currentVarPage = 1;
+  renderVariationTable();
 });
-
-document.getElementById('groupSearchBox').addEventListener('input', (e) => {
-  groupState.q = e.target.value;
-  currentGroupPage = 1;
-  renderGroups();
+document.getElementById('resetVarSearchBtn').addEventListener('click', () => {
+  document.getElementById('varSearchBox').value = '';
+  varSearchQuery = '';
+  currentVarPage = 1;
+  renderVariationTable();
 });
 
 function renderAll(){
-  currentPage = 1; currentGroupPage = 1;
+  currentPage = 1;
   renderKPIs(rawRows);
   renderTable();
-  renderGroups();
   updateDeleteSelectedBtn();
 }
 
