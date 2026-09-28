@@ -203,7 +203,7 @@
   .chip.warn.active{background:var(--amber);border-color:var(--amber); color:#fff;}
 
   .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;}
-  table{width:100%;border-collapse:collapse;font-size:13px;min-width:1000px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px;}
   thead th{
     position:sticky;top:0;background:var(--paper);text-align:left;padding:12px 14px;
     font-size:11.5px;font-weight:800;color:var(--muted);border-bottom:1px solid var(--line);
@@ -215,7 +215,6 @@
   tbody tr.datarow:hover{background:var(--red-tint);}
   tbody tr.incomplete td:first-child{box-shadow:inset 4px 0 0 var(--amber);}
   .sku{font-family:var(--mono);font-size:12.5px;font-weight:600;}
-  .sku-10{font-family:var(--mono);font-size:11.5px;color:var(--slate);background:#e9ecef;padding:3px 8px;border-radius:4px; font-weight:600;}
   .motor-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:#eef2ff;color:var(--violet);border:1px solid #c7d2fe;}
   .badge{
     display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;
@@ -254,9 +253,8 @@
   .log-list li:last-child{border-bottom:none;}
   .log-list .lk{color:var(--muted);}
   .log-list .lv{font-family:var(--mono);font-weight:600;}
-  .mp-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
   .mp-toggle{
-    display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:20px;
+    display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:20px;
     border:1px solid var(--line);background:#fff;font-size:12px;font-weight:700;color:var(--muted);
   }
   .mp-toggle.on{background:var(--green-tint);border-color:var(--green);color:var(--green);}
@@ -429,7 +427,7 @@
           <div class="kpi k-super"><div class="label">Supersede</div><div class="num" id="kSupersede">–</div><div class="sub">perlu ganti SKU</div></div>
           <div class="kpi k-disc"><div class="label">Discontinue</div><div class="num" id="kDiscontinue">–</div><div class="sub">tidak dijual lagi</div></div>
           <div class="kpi k-incomplete"><div class="label">Data Belum Lengkap</div><div class="num" id="kIncomplete">–</div><div class="sub">berat/dimensi = 0</div></div>
-          <div class="kpi" style="border-left-color:#0f766e;"><div class="label">Grup Varian / Tipe Motor</div><div class="num" id="kGroups" style="color:#0f766e;">–</div><div class="sub">10 char SKU / Pasangan L-R</div></div>
+          <div class="kpi" style="border-left-color:#0f766e;"><div class="label">Grup Varian / Tipe Motor</div><div class="num" id="kGroups" style="color:#0f766e;">–</div><div class="sub">Pasangan / Varian Motor</div></div>
         </div>
 
         <div class="section">
@@ -470,12 +468,12 @@
           <div class="section-head">
             <div>
               <h2>Tabel Master Part</h2>
-              <p>Menampilkan SKU Induk, 10 SKU Awal, Kode Motor Honda, dan Status per Channel</p>
+              <p>Menampilkan SKU Induk, Kode Motor Honda, dan Tanggal Update Shopee</p>
             </div>
           </div>
           <div class="section-body">
             <div class="controls">
-              <input type="text" class="search-box" id="searchBox" placeholder="Cari SKU, 10 SKU awal, kode motor, atau nama produk...">
+              <input type="text" class="search-box" id="searchBox" placeholder="Cari SKU, kode motor, atau nama produk...">
               <div class="chip active" data-status="ALL">Semua</div>
               <div class="chip" data-status="SUPERSEDE">Supersede</div>
               <div class="chip" data-status="DISCONTINUE">Discontinue</div>
@@ -487,7 +485,6 @@
                 <thead>
                   <tr>
                     <th style="width:34px;"></th>
-                    <th data-key="sku10">10 SKU Awal</th>
                     <th data-key="sku">SKU Induk</th>
                     <th>Tipe Motor</th>
                     <th data-key="status">Status</th>
@@ -495,13 +492,13 @@
                     <th data-key="berat">Berat (g)</th>
                     <th data-key="volume">Volume (g)</th>
                     <th data-key="dim">P × L × T</th>
-                    <th>Channel</th>
+                    <th>Update Shopee</th>
                     <th data-key="source">Sumber</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody id="tableBody">
-                  <tr><td colspan="12"><div class="loading-state">Menarik data dari Google Sheets…</div></td></tr>
+                  <tr><td colspan="11"><div class="loading-state">Menarik data dari Google Sheets…</div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -520,7 +517,7 @@
           </div>
           <div class="section-body">
             <div class="controls">
-              <input type="text" class="search-box" id="groupSearchBox" placeholder="Cari 10 SKU awal, kode motor, atau nama produk...">
+              <input type="text" class="search-box" id="groupSearchBox" placeholder="Cari kode motor atau nama produk...">
               <button class="btn small ghost" id="resetGroupSearchBtn">Reset</button>
               <div class="chip active" id="groupOnlyMultiToggle">Hanya grup ≥ 2 SKU</div>
             </div>
@@ -528,7 +525,7 @@
               <table>
                 <thead>
                   <tr>
-                    <th>10 SKU Awal</th>
+                    <th>Grup / Kode Motor</th>
                     <th>Tipe Motor Honda</th>
                     <th>Jumlah SKU Varian</th>
                     <th>Nama Produk (Acuan)</th>
@@ -543,6 +540,48 @@
             </div>
             <div class="footer-note" id="groupCountNote"></div>
             <div class="pagination" id="groupPaginationControls"></div>
+          </div>
+        </div>
+
+        <!-- VARIATION MASTER GRAPH MODULE -->
+        <div class="section" id="variationMasterSection">
+          <div class="section-head">
+            <div>
+              <h2>Variation Master</h2>
+              <p>Visualisasi Analisis Distribusi Varian SKU dan Kelompok Tipe Motor Terbesar</p>
+            </div>
+          </div>
+          <div class="section-body">
+            <!-- Variation Master KPIs -->
+            <div class="kpis" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+              <div class="kpi">
+                <div class="label">Total Kelompok Varian</div>
+                <div class="num" id="vmTotalGroups" style="color:var(--violet);">–</div>
+                <div class="sub">kelompok terdeteksi</div>
+              </div>
+              <div class="kpi k-fast">
+                <div class="label">Rata-Rata Varian / Grup</div>
+                <div class="num" id="vmAvgVariants">–</div>
+                <div class="sub">SKU anak per kelompok</div>
+              </div>
+              <div class="kpi k-incomplete">
+                <div class="label">Grup Varian Terbesar</div>
+                <div class="num" id="vmMaxVariantCount">–</div>
+                <div class="sub" id="vmMaxVariantLabel">0 SKU</div>
+              </div>
+            </div>
+
+            <!-- Charts Layout Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px;">
+                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Distribusi Status Varian SKU</h4>
+                <canvas id="vmStatusChart" height="200"></canvas>
+              </div>
+              <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px;">
+                <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: var(--ink);">Top 10 Kelompok Varian Terbanyak</h4>
+                <canvas id="vmTopGroupsChart" height="200"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -705,7 +744,7 @@
 </div>
 
 <script>
-// MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
+// APPS SCRIPT URL
 const APPS_SCRIPT_URL = 'PASTE_URL_APPS_SCRIPT_DI_SINI';
 
 // Database Kode Motor Honda Resmi
@@ -758,7 +797,7 @@ function normalizeNameLR(name) {
   return norm.split(' ').filter(t => !['L', 'R', 'LEFT', 'RIGHT', 'KIRI', 'KANAN'].includes(t)).join(' ');
 }
 
-// Simple Login Gate
+// Login Gate
 const APP_USERS = { 'admin': 'cengkareng2026' };
 const AUTH_KEY = 'mp_auth_session_v1';
 
@@ -860,7 +899,7 @@ function normalizeUrl(link){
 }
 
 function getExtra(sku){
-  return extras[sku] || { webInput:false, shopee:false, lazada:false, tiktok:false, docLink:'' };
+  return extras[sku] || { docLink:'' };
 }
 function setExtra(sku, patch){
   extras[sku] = Object.assign(getExtra(sku), patch);
@@ -898,7 +937,6 @@ async function loadData(){
     const headers = parsed.meta.fields || [];
 
     const kSku = findKey(headers, ['sku induk']);
-    const k10Awal = findKey(headers, ['10 sku awal']);
     const kSumberData = findKey(headers, ['sumber data']);
     const kNama = findKey(headers, ['part name']) || findKey(headers, ['nama produk']);
     const kStatus = findKey(headers, ['status']);
@@ -909,10 +947,7 @@ async function loadData(){
     const kLebar = findExactKey(headers, 'l') || findKey(headers, ['lebar']);
     const kTinggi = findExactKey(headers, 't') || findKey(headers, ['tinggi']);
     const kTglOps = findKey(headers, ['tanggal input ops']) || findKey(headers, ['tgl input ops']);
-    const kUpdateWeb = findKey(headers, ['update web']);
     const kUpdateShopee = findKey(headers, ['update shopee']);
-    const kUpdateLazada = findKey(headers, ['update lazada']);
-    const kUpdateTiktok = findKey(headers, ['update tiktok']) || findKey(headers, ['update tik tok']);
     const kLampiran = findKey(headers, ['lampiran pengukuran']) || findKey(headers, ['lampiran']);
 
     if(!kSku){ throw new Error('Kolom "SKU Induk" tidak ditemukan di sheet ini.'); }
@@ -932,19 +967,15 @@ async function loadData(){
         const skuNoteMatch = skuRawFull.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
         const skuClean = (skuNoteMatch && skuNoteMatch[1].trim()) ? skuNoteMatch[1].trim() : skuRawFull;
         const skuNote = skuNoteMatch ? skuNoteMatch[2].trim() : '';
-        const sku10 = (k10Awal && r[k10Awal]) ? String(r[k10Awal]).trim() : skuClean.toUpperCase().slice(0, 10);
         const motorModel = detectMotorModel(skuClean);
         return {
-          sku: skuClean, skuNote, sku10, motorModel,
+          sku: skuClean, skuNote, motorModel,
           sumberData: kSumberData ? String(r[kSumberData] || '').trim() : '',
           statusCat: cat, statusRaw: (statusRaw || '').trim(),
           nama: kNama ? String(r[kNama] || '').trim() : '',
           max: kMax ? parseNum(r[kMax]) : 0, berat, volume, p, l, t,
           tglOps: kTglOps ? String(r[kTglOps] || '').trim() : '',
-          updateWeb: kUpdateWeb ? String(r[kUpdateWeb] || '').trim() : '',
           updateShopee: kUpdateShopee ? String(r[kUpdateShopee] || '').trim() : '',
-          updateLazada: kUpdateLazada ? String(r[kUpdateLazada] || '').trim() : '',
-          updateTiktok: kUpdateTiktok ? String(r[kUpdateTiktok] || '').trim() : '',
           sheetDocLink: linksMap[skuClean.toUpperCase()] || (kLampiran ? normalizeUrl(r[kLampiran]) : ''),
           incomplete, source: 'sheets'
         };
@@ -953,7 +984,7 @@ async function loadData(){
     renderAll();
   }catch(err){
     document.getElementById('tableBody').innerHTML =
-      `<tr><td colspan="12"><div class="error-state">Gagal menarik data dari Google Sheets: ${err.message}.</div></td></tr>`;
+      `<tr><td colspan="11"><div class="error-state">Gagal menarik data dari Google Sheets: ${err.message}.</div></td></tr>`;
   }
 }
 
@@ -972,13 +1003,12 @@ function getFilteredRows(){
     const q = filterState.q.toLowerCase();
     rows = rows.filter(r => 
       r.sku.toLowerCase().includes(q) || 
-      r.sku10.toLowerCase().includes(q) || 
       r.motorModel.toLowerCase().includes(q) || 
       r.nama.toLowerCase().includes(q)
     );
   }
   if(filterState.skuList){
-    rows = rows.filter(r => filterState.skuList.includes(r.sku.toUpperCase()) || filterState.skuList.includes(r.sku10.toUpperCase()));
+    rows = rows.filter(r => filterState.skuList.includes(r.sku.toUpperCase()));
   }
   if(sortState.key){
     rows = [...rows].sort((a,b) => {
@@ -992,17 +1022,13 @@ function getFilteredRows(){
   return rows;
 }
 
-function mpStatusPill(label, dateVal){
-  const done = dateVal && dateVal.trim();
-  return `<span class="mp-toggle ${done ? 'on' : ''}">${label}${done ? ` — ${dateVal}` : ' — Belum'}</span>`;
-}
-
 function detailHtml(r){
   const ex = getExtra(r.sku);
   const effectiveDocLink = normalizeUrl(r.sheetDocLink || ex.docLink);
   const docLinkHtml = effectiveDocLink
     ? `<div class="doc-link"><a href="${effectiveDocLink}" target="_blank" rel="noopener">Buka dokumentasi ↗</a></div>`
     : `<div class="doc-empty">Belum ada link dokumentasi.</div>`;
+  const shopeeDate = r.updateShopee && r.updateShopee.trim() ? r.updateShopee : 'Belum Update';
   return `
     <div class="detail-inner">
       <div class="detail-grid">
@@ -1010,39 +1036,24 @@ function detailHtml(r){
           <h4>Log Riwayat Pengukuran &amp; Tipe Motor</h4>
           <ul class="log-list">
             <li><span class="lk">Tanggal Input OPS</span><span class="lv">${r.tglOps || '—'}</span></li>
-            <li><span class="lk">10 SKU Awal (Satu Varian)</span><span class="lv">${r.sku10}</span></li>
             <li><span class="lk">Tipe Motor Honda</span><span class="lv">${r.motorModel || '—'}</span></li>
             ${r.skuNote ? `<li><span class="lk">Catatan SKU</span><span class="lv">${r.skuNote}</span></li>` : ''}
           </ul>
-          <button class="btn small ghost pull-children-btn" data-sku10="${r.sku10}" style="margin-top:12px;">Tampilkan Semua Anak/Varian 10 SKU Ini</button>
         </div>
         <div class="detail-block">
           <h4>Status Update Channel</h4>
-          <div class="mp-row">
-            ${mpStatusPill('Web', r.updateWeb)}
-            ${mpStatusPill('Shopee', r.updateShopee)}
-            ${mpStatusPill('Lazada', r.updateLazada)}
-            ${mpStatusPill('TikTok', r.updateTiktok)}
+          <div style="margin-bottom:16px;">
+            <span class="mp-toggle ${r.updateShopee && r.updateShopee.trim() ? 'on' : ''}">Shopee — ${shopeeDate}</span>
           </div>
           <h4>Link Dokumentasi</h4>
-          <div class="doc-row">
-            <input type="text" class="docLinkInput" data-sku="${r.sku}" placeholder="Tempel link foto..." value="${ex.docLink || ''}">
+          <div class="doc-row" style="display:flex; gap:8px;">
+            <input type="text" class="docLinkInput search-box" data-sku="${r.sku}" placeholder="Tempel link foto..." value="${ex.docLink || ''}">
             <button class="btn small saveDocBtn" data-sku="${r.sku}">Simpan</button>
           </div>
-          <div class="doc-link-holder">${docLinkHtml}</div>
+          <div class="doc-link-holder" style="margin-top:8px;">${docLinkHtml}</div>
         </div>
       </div>
     </div>`;
-}
-
-function channelDotsHtml(r){
-  const chans = [['W', r.updateWeb], ['S', r.updateShopee], ['L', r.updateLazada], ['T', r.updateTiktok]];
-  return `<span style="display:inline-flex;gap:4px;">
-    ${chans.map(([label, val]) => {
-      const done = val && val.trim();
-      return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:9.5px;font-weight:700;background:${done ? 'var(--green-tint)' : '#f1f2f4'};color:${done ? 'var(--green)' : 'var(--faint)'};">${label}</span>`;
-    }).join('')}
-  </span>`;
 }
 
 function renderTable(){
@@ -1056,15 +1067,15 @@ function renderTable(){
   const tbody = document.getElementById('tableBody');
   
   if(rows.length === 0){
-    tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state">Tidak ada data yang cocok dengan pencarian.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state">Tidak ada data yang cocok dengan pencarian.</div></td></tr>`;
   } else {
     tbody.innerHTML = rows.map(r => {
       const isOpen = openDetail.has(r.sku);
       const checkboxCell = `<input type="checkbox" class="rowCheckbox" data-sku="${r.sku}" ${selectedForDelete.has(r.sku) ? 'checked' : ''}>`;
+      const shopeeBadge = r.updateShopee && r.updateShopee.trim() ? `<span class="badge fast">${r.updateShopee}</span>` : `<span class="dim">—</span>`;
       return `
       <tr class="datarow ${r.incomplete ? 'incomplete' : ''}" data-sku="${r.sku}">
         <td onclick="event.stopPropagation()">${checkboxCell}</td>
-        <td><span class="sku-10">${r.sku10}</span></td>
         <td class="sku">${r.sku}${r.skuNote ? `<span class="flag" title="Catatan: ${r.skuNote}">📸 ${r.skuNote}</span>` : ''}</td>
         <td>${r.motorModel ? `<span class="motor-badge">${r.motorModel}</span>` : '<span class="dim">—</span>'}</td>
         <td><span class="badge ${statusBadgeClass(r.statusCat)}">${statusLabel(r.statusCat, r.statusRaw) || '—'}</span></td>
@@ -1072,12 +1083,12 @@ function renderTable(){
         <td class="dim">${r.berat ? r.berat.toLocaleString('id-ID') : '—'}</td>
         <td class="dim">${r.volume ? r.volume.toLocaleString('id-ID') : '—'}</td>
         <td class="dim">${(r.p||r.l||r.t) ? `${r.p}×${r.l}×${r.t}` : '—'}</td>
-        <td>${channelDotsHtml(r)}</td>
+        <td>${shopeeBadge}</td>
         <td><span class="badge ${r.source === 'import' ? 'src-import' : 'src-sheets'}">${r.source === 'import' ? 'Import' : 'Sheets'}</span></td>
         <td class="chevron">${isOpen ? '▲' : '▼'}</td>
       </tr>
       <tr class="detail-row ${isOpen ? 'open' : ''}">
-        <td colspan="12">${isOpen ? detailHtml(r) : ''}</td>
+        <td colspan="11">${isOpen ? detailHtml(r) : ''}</td>
       </tr>`;
     }).join('');
   }
@@ -1119,16 +1130,6 @@ function attachRowHandlers(){
       updateDeleteSelectedBtn();
     });
   });
-  document.querySelectorAll('.pull-children-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const sku10 = btn.dataset.sku10;
-      document.getElementById('searchBox').value = sku10;
-      filterState.q = sku10;
-      currentPage = 1;
-      renderTable();
-    });
-  });
   document.querySelectorAll('.saveDocBtn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1157,7 +1158,7 @@ function computeGroups(rows){
   rows.forEach((r, i) => {
     const motorCode = getStrictMotorCode(r.sku);
     if (!motorCode) return;
-    const baseSku = normalizeSkuLR(r.sku10);
+    const baseSku = normalizeSkuLR(r.sku.slice(0, 10));
     const baseName = normalizeNameLR(r.nama);
     const primaryGroupKey = `${motorCode}_${baseSku}`;
     const secondaryGroupKey = baseName ? `${motorCode}_NAME_${baseName}` : null;
@@ -1190,7 +1191,10 @@ function getGroupsCached(){
 
 function getFilteredGroups(){
   const groups = getGroupsCached();
-  let entries = groups.map(members => [members[0].sku10.toUpperCase(), members]);
+  let entries = groups.map(members => {
+    const mCode = getStrictMotorCode(members[0].sku) || 'Grup Varian';
+    return [mCode, members];
+  });
   if(groupState.onlyMulti){ entries = entries.filter(([k, members]) => members.length >= 2); }
   if(groupState.q){
     const q = groupState.q.toLowerCase();
@@ -1208,11 +1212,10 @@ function groupDetailHtml(members){
       <ul class="log-list">
         ${members.map(m => `
           <li>
-            <span class="lk"><span class="sku">${m.sku}</span> — ${m.nama}</span>
+            <span class="lk"><span class="sku">${m.sku}</span> —${m.nama}</span>
             <span class="lv">
               <span class="dim">P${m.p}×L${m.l}×T${m.t}</span>
-              <span class="dim">${m.berat}g</span>
-              ${m.motorModel ? `<span class="motor-badge">${m.motorModel}</span>` : ''}
+              <span class="dim">${m.berat}g</span>${m.motorModel ? `<span class="motor-badge">${m.motorModel}</span>` : ''}
             </span>
           </li>`).join('')}
       </ul>
@@ -1235,13 +1238,14 @@ function renderGroups(){
   if(entries.length === 0){
     tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Tidak ada kelompok SKU varian yang cocok.</div></td></tr>`;
   } else {
-    tbody.innerHTML = entries.map(([key, members]) => {
-      const isOpen = openGroups.has(key);
+    tbody.innerHTML = entries.map(([key, members], idx) => {
+      const groupKey = `${key}_${idx}`;
+      const isOpen = openGroups.has(groupKey);
       const sampleName = (members.find(m => m.nama)?.nama || '—');
       const motorModel = (members.find(m => m.motorModel)?.motorModel || '—');
       return `
-      <tr class="datarow" data-group="${key}">
-        <td><span class="sku-10">${key}</span></td>
+      <tr class="datarow" data-group="${groupKey}">
+        <td><span class="motor-badge">${key}</span></td>
         <td>${motorModel !== '—' ? `<span class="motor-badge">${motorModel}</span>` : '<span class="dim">—</span>'}</td>
         <td class="dim">${members.length} SKU Varian</td>
         <td class="prodname">${sampleName}</td>
@@ -1263,6 +1267,110 @@ function renderGroups(){
       renderGroups();
     });
   });
+
+  renderVariationMasterModule();
+}
+
+// Modul Graphic Variation Master
+let vmStatusChartInstance = null;
+let vmTopGroupsChartInstance = null;
+
+function renderVariationMasterModule() {
+  const groups = getGroupsCached();
+  if (!groups || groups.length === 0) return;
+
+  const totalGroups = groups.length;
+  let totalVariantsSum = 0;
+  let maxCount = 0;
+  let maxGroupKey = '—';
+
+  const statusCounts = { 'FAST': 0, 'NONFAST': 0, 'SUPERSEDE': 0, 'DISCONTINUE': 0, 'OTHER': 0 };
+
+  groups.forEach(members => {
+    const count = members.length;
+    totalVariantsSum += count;
+
+    if (count > maxCount) {
+      maxCount = count;
+      maxGroupKey = getStrictMotorCode(members[0].sku) || members[0].sku;
+    }
+
+    members.forEach(m => {
+      const cat = m.statusCat || 'OTHER';
+      if (statusCounts[cat] !== undefined) statusCounts[cat]++;
+      else statusCounts['OTHER']++;
+    });
+  });
+
+  const avgVariants = totalGroups > 0 ? (totalVariantsSum / totalGroups).toFixed(1) : '0';
+
+  document.getElementById('vmTotalGroups').textContent = totalGroups.toLocaleString('id-ID');
+  document.getElementById('vmAvgVariants').textContent = `${avgVariants} SKU`;
+  document.getElementById('vmMaxVariantCount').textContent = maxGroupKey;
+  document.getElementById('vmMaxVariantLabel').textContent = `${maxCount} SKU anak`;
+
+  const ctxStatus = document.getElementById('vmStatusChart');
+  if (ctxStatus) {
+    if (vmStatusChartInstance) vmStatusChartInstance.destroy();
+    vmStatusChartInstance = new Chart(ctxStatus, {
+      type: 'doughnut',
+      data: {
+        labels: ['Fast Moving', 'Non-Fast', 'Supersede', 'Discontinue', 'Lainnya'],
+        datasets: [{
+          data: [
+            statusCounts['FAST'],
+            statusCounts['NONFAST'],
+            statusCounts['SUPERSEDE'],
+            statusCounts['DISCONTINUE'],
+            statusCounts['OTHER']
+          ],
+          backgroundColor: ['#198754', '#495057', '#6f42c1', '#e4002b', '#adb5bd']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'right', labels: { font: { family: 'Manrope', weight: '700', size: 11 } } }
+        }
+      }
+    });
+  }
+
+  const sortedGroups = [...groups].sort((a, b) => b.length - a.length).slice(0, 10);
+  const topLabels = sortedGroups.map(g => getStrictMotorCode(g[0].sku) || g[0].sku);
+  const topValues = sortedGroups.map(g => g.length);
+
+  const ctxTop = document.getElementById('vmTopGroupsChart');
+  if (ctxTop) {
+    if (vmTopGroupsChartInstance) vmTopGroupsChartInstance.destroy();
+    vmTopGroupsChartInstance = new Chart(ctxTop, {
+      type: 'bar',
+      data: {
+        labels: topLabels,
+        datasets: [{
+          label: 'Jumlah SKU Varian',
+          data: topValues,
+          backgroundColor: '#6f42c1',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` Total Varian: ${ctx.raw} SKU`
+            }
+          }
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { precision: 0 } }
+        }
+      }
+    });
+  }
 }
 
 document.getElementById('resetGroupSearchBtn').addEventListener('click', () => {
@@ -1324,7 +1432,6 @@ function triggerExcelExport(exportType) {
   else targetRows = rawRows;
 
   const exportData = targetRows.map(r => ({
-    '10 SKU Awal': r.sku10,
     'SKU Induk': r.sku,
     'Tipe Motor Honda': r.motorModel,
     'Status': statusLabel(r.statusCat, r.statusRaw),
@@ -1333,10 +1440,7 @@ function triggerExcelExport(exportType) {
     'Volume (g)': r.volume,
     'P': r.p, 'L': r.l, 'T': r.t,
     'Tanggal Input OPS': r.tglOps,
-    'Update Web': r.updateWeb,
     'Update Shopee': r.updateShopee,
-    'Update Lazada': r.updateLazada,
-    'Update Tiktok': r.updateTiktok,
     'Sumber': r.source === 'import' ? 'Import' : 'Sheets'
   }));
 
@@ -1374,7 +1478,7 @@ const SELISIH_SHEET_ID = '1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs';
 const SELISIH_SOURCES_KEY = 'mp_selisih_sources_v1';
 const DEFAULT_SHOPEE_URL = 'https://docs.google.com/spreadsheets/d/1MlT3_leUtskn5hGggfN2IA2bWkyX5yLX6THGx0Xm1cs/edit?gid=502480312#gid=502480312';
 
-let currentChartType = 'periode'; // 'periode' atau 'harian'
+let currentChartType = 'periode';
 
 function extractGid(input){
   if(!input) return null;
@@ -1452,7 +1556,6 @@ function filterSelisihRows(allRows){
   });
 }
 
-// Agregasi Per Periode (Mingguan)
 function aggregatePeriode(filteredRows){
   const weeks = {};
   filteredRows.forEach(r => {
@@ -1485,7 +1588,6 @@ function aggregatePeriode(filteredRows){
   return Object.values(weeks);
 }
 
-// Agregasi Harian (Daily)
 function aggregateHarian(filteredRows){
   const days = {};
   filteredRows.forEach(r => {
@@ -1637,11 +1739,9 @@ function applyAndRenderSelisih(){
     renderSelisihChart(weeks, false);
   }
 
-  // Tabel Rekap Bawah Selalu Menggunakan Tipe Per Periode
   renderSelisihCleanTable(weeks);
 }
 
-// EXPORT REKAP SELISIH KHUSUS KE EXCEL
 document.getElementById('exportSelisihExcelBtn').addEventListener('click', () => {
   const filteredRows = filterSelisihRows(rawSelisihData);
   const weeks = aggregatePeriode(filteredRows);
@@ -1677,7 +1777,6 @@ function initSelisihPage(){
   document.getElementById('srcShopee').value = (saved && saved.Shopee) ? saved.Shopee : DEFAULT_SHOPEE_URL;
   document.getElementById('loadSelisihBtn').addEventListener('click', loadSelisihData);
   
-  // Handlers untuk Chart Toggle Pills
   document.getElementById('btnChartPeriode').addEventListener('click', () => {
     currentChartType = 'periode';
     document.getElementById('btnChartPeriode').classList.add('active');
